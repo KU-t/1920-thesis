@@ -37,4 +37,17 @@
  - GITHUB 프로젝트 하나 생성하기, 그리고 zzapuno@hotmail.com을 초대하기.
 
 
+2019-12-02
+-------------
+1. PPT를 읽어서 이해가 될 수 있도록 하고, 자신이 발표할 수 있도록 내용을 다듬을 것.
+ - 관련연구를 좀 자세히 적을 것.
 
+2. 다음 미팅
+ - 12월 16일 월요일 오후 7시
+ - 관련연구를 읽어와서 발표하기. http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.92.8221&rep=rep1&type=pdf
+
+2019-12-16
+-------------
+1. 관련연구를 읽어와서 발표하기. Practical and Efﬁcient Lock-Free Garbage Collection Based on Reference Counting
+
+2. 다음미팅 : 12월 26일 목요일 오후 5시
