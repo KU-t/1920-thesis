@@ -65,3 +65,64 @@
  *  1월 13일 오후 2시
  * 연구한 내용 발표.(G++에서의 shared_ptr, weak_ptr 소스코드 분석내용)
 
+2019-01-13
+-------------
+1. 제안서 발표 - 통과
+ * 딱히 특별한 지적 사항은 없었음.
+
+2. 작업일지 작성 시작
+ * 샘플 서식에 맞춰서 매주 작성
+
+3. 오늘 한것
+ * using a = b;
+   typedef b a; 와 같다. 그런데 좀더 템플릿에서 사용하기 편하다.
+
+   typedef int a[100];
+   using a = int[100];
+
+ * remove_extent<T>::type;
+   T가 배열이면 배열의 원소 타입을 리턴한다.
+   type은 remove_extent 템플릿의 멤버의 이름이다.
+
+ * enable_shared_from_this
+   shared_ptr로 관리되는 객체가 내부에서 자기 자신의 shared_ptr를 얻고자 할 때 사용. 이게 없으면 자신의 shared_ptr가 무엇인지 내부에서 알 방법이 없다.
+
+#include <iostream>
+#include <memory>
+
+class party;
+
+class player
+{
+public:
+	int id;
+	std::shared_ptr<party> my_party;
+	player(int id_): id (id_)
+	{}
+};
+
+
+class party : public std::enable_shared_from_this<party>
+{
+
+	std::shared_ptr<player> member[5];
+public:
+	void add_memeber(std::shared_ptr<player> new_member)
+	{
+		member[0] = new_member;
+		new_member->my_party = shared_from_this();
+	}
+};
+
+
+int main()
+{
+	std::shared_ptr<player> p1 = std::make_shared<player>(1);
+	std::shared_ptr<party> pt1 = std::make_shared<party>();
+	pt1->add_memeber(p1);
+}
+
+4. 인터넷을 뒤져가면서 잘 공부해 올것.
+ 
+5. 다음미팅
+ - 2월 3일 오후 2시
