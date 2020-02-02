@@ -1076,8 +1076,7 @@ shared_ptr and weak_ptr implementation details - *-C++ - *-
 	};
 
 	template<typename _Tp, _Lock_policy _Lp>
-	class __shared_ptr
-		: public __shared_ptr_access<_Tp, _Lp>
+	class __shared_ptr : public __shared_ptr_access<_Tp, _Lp>
 	{
 	public:
 		using element_type = typename remove_extent<_Tp>::type;
@@ -1372,10 +1371,9 @@ shared_ptr and weak_ptr implementation details - *-C++ - *-
 			_M_enable_shared_from_this_with(_M_ptr);
 		}
 
-		template<typename _Tp1, _Lock_policy _Lp1, typename _Alloc,
-			typename... _Args>
-			friend __shared_ptr<_Tp1, _Lp1>
-			__allocate_shared(const _Alloc& __a, _Args&&... __args);
+		template<typename _Tp1, _Lock_policy _Lp1, typename _Alloc,	typename... _Args>
+		friend __shared_ptr<_Tp1, _Lp1>
+		__allocate_shared(const _Alloc& __a, _Args&&... __args);
 
 		// This constructor is used by __weak_ptr::lock() and
 		// shared_ptr::shared_ptr(const weak_ptr&, std::nothrow_t).
@@ -1390,9 +1388,8 @@ shared_ptr and weak_ptr implementation details - *-C++ - *-
 	private:
 
 		template<typename _Yp>
-		using __esft_base_t = decltype(__enable_shared_from_this_base(
-			std::declval<const __shared_count<_Lp>&>(),
-			std::declval<_Yp*>()));
+		using __esft_base_t = 
+			decltype(__enable_shared_from_this_base(std::declval<const __shared_count<_Lp>&>(), std::declval<_Yp*>()));
 
 		// Detect an accessible and unambiguous enable_shared_from_this base.
 		template<typename _Yp, typename = void>
@@ -1908,7 +1905,7 @@ shared_ptr and weak_ptr implementation details - *-C++ - *-
 			_M_weak_this._M_assign(__p, __n);
 		}
 
-		friend const __enable_shared_from_this*
+		friend const __enable_shared_from_this* 
 			__enable_shared_from_this_base(const __shared_count<_Lp>&, const __enable_shared_from_this* __p)
 		{
 			return __p;
