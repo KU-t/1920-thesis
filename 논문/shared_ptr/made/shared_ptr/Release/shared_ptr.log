@@ -1,6 +1,0 @@
-﻿  main.cpp
-c:\users\태균\desktop\졸작\1920-thesis\논문\shared_ptr\shared_ptr\main.cpp(52): warning C4326: 'main'의 반환 형식이 'int'이어야 하는데 'void'입니다.
-c:\users\태균\desktop\졸작\1920-thesis\논문\shared_ptr\shared_ptr\single-shared_ptr.h(79): error C2039: 'ptr': 'character'의 멤버가 아닙니다.
-  c:\users\태균\desktop\졸작\1920-thesis\논문\shared_ptr\shared_ptr\main.cpp(5): note: 'character' 선언을 참조하십시오.
-  c:\users\태균\desktop\졸작\1920-thesis\논문\shared_ptr\shared_ptr\main.cpp(60): note: 컴파일 중인 함수 템플릿 인스턴스화 'shared_ptr<character1> &shared_ptr<character1>::operator =<character>(const shared_ptr<character> &) noexcept'에 대한 참조를 확인하십시오.
-  c:\users\태균\desktop\졸작\1920-thesis\논문\shared_ptr\shared_ptr\main.cpp(60): note: 컴파일 중인 함수 템플릿 인스턴스화 'shared_ptr<character1> &shared_ptr<character1>::operator =<character>(const shared_ptr<character> &) noexcept'에 대한 참조를 확인하십시오.

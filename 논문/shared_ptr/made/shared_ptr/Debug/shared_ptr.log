@@ -1,3 +1,0 @@
-﻿main.obj : error LNK2019: "public: __thiscall s_ptr<class character>::s_ptr<class character>(class character *)" (??0?$s_ptr@Vcharacter@@@@QAE@PAVcharacter@@@Z) 외부 기호(참조 위치: _main 함수)에서 확인하지 못했습니다.
-main.obj : error LNK2019: "public: __thiscall s_ptr<class character>::~s_ptr<class character>(void)" (??1?$s_ptr@Vcharacter@@@@QAE@XZ) 외부 기호(참조 위치: _main 함수)에서 확인하지 못했습니다.
-C:\Users\태균\Desktop\졸작\1920-thesis\논문\shared_ptr\Debug\shared_ptr.exe : fatal error LNK1120: 2개의 확인할 수 없는 외부 참조입니다.
