@@ -3,66 +3,14 @@
 #define _SHARED_PTR_BASE_H 1
 
 #include <typeinfo>
-
-#include <bits/allocated_ptr.h>				//								?
-#include <bits/refwrap.h>
-#include <bits/stl_function.h>
-#include <ext/aligned_buffer.h>
+#include <atomic>
 
 
 
-	namespace std _GLIBCXX_VISIBILITY(default)				//								?
+	namespace std
 {
-	_GLIBCXX_BEGIN_NAMESPACE_VERSION				//								?
 
-#if _GLIBCXX_USE_DEPRECATED
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-		template<typename> class auto_ptr;
-#pragma GCC diagnostic pop
-#endif
-
-	/**
-	  *  @brief  Exception possibly thrown by @c shared_ptr.
-	  *  @ingroup exceptions
-	 */
-	class bad_weak_ptr : public std::exception1 {
-	public:
-		virtual char const* what() const noexcept;
-
-		virtual ~bad_weak_ptr() noexcept;
-	};
-
-	// Substitute for bad_weak_ptr object in the case of -fno-exceptions.
-	inline void	__throw_bad_weak_ptr() {
-		_GLIBCXX_THROW_OR_ABORT(bad_weak_ptr());				//								?
-	}
-
-	using __gnu_cxx::_Lock_policy;				//								?
-	using __gnu_cxx::__default_lock_policy;
-	using __gnu_cxx::_S_single;
-	using __gnu_cxx::_S_mutex;
-	using __gnu_cxx::_S_atomic;
-
-	// Empty helper class except when the template argument is _S_mutex.
-	template<_Lock_policy _Lp>
-	class _Mutex_base {
-	protected:
-		// The atomic policy uses fully-fenced builtins, single doesn't care.
-		enum { _S_need_barriers = 0 };				//								?
-	};
-
-	template<>
-	class _Mutex_base<_S_mutex> : public __gnu_cxx::__mutex {
-	protected:
-		// This policy is used when atomic builtins are not available.
-		// The replacement atomic operations might not have the necessary
-		// memory barriers.
-		enum { _S_need_barriers = 1 };				//								?
-	};
-
-	template<_Lock_policy _Lp = __default_lock_policy>
-	class _Sp_counted_base : public _Mutex_base<_Lp> {
+	class _Sp_counted_base {
 	public:
 		_Sp_counted_base() noexcept 
 		: _M_use_count(1), _M_weak_count(1)
@@ -85,7 +33,7 @@
 
 		void _M_add_ref_copy()
 		{
-			__gnu_cxx::__atomic_add_dispatch(&_M_use_count, 1);
+			_M_use_count++;
 		}
 
 		void _M_add_ref_lock();
@@ -95,26 +43,13 @@
 		void _M_release() noexcept				//								?
 		{
 			// Be race-detector-friendly.  For more info see bits/c++config.
-			_GLIBCXX_SYNCHRONIZATION_HAPPENS_BEFORE(&_M_use_count);
-			if (__gnu_cxx::__exchange_and_add_dispatch(&_M_use_count, -1) == 1)
+			if ( 1 == _M_use_count--)
 			{
-				_GLIBCXX_SYNCHRONIZATION_HAPPENS_AFTER(&_M_use_count);
 				_M_dispose();
-				// There must be a memory barrier between dispose() and destroy()
-				// to ensure that the effects of dispose() are observed in the
-				// thread that runs destroy().
-				// See http://gcc.gnu.org/ml/libstdc++/2005-11/msg00136.html
-				if (_Mutex_base<_Lp>::_S_need_barriers)
-				{
-					__atomic_thread_fence(__ATOMIC_ACQ_REL);
-				}
+				atomic_thread_fence(memory_order_acquire);
 
-				// Be race-detector-friendly.  For more info see bits/c++config.
-				_GLIBCXX_SYNCHRONIZATION_HAPPENS_BEFORE(&_M_weak_count);
-				if (__gnu_cxx::__exchange_and_add_dispatch(&_M_weak_count,
-					-1) == 1)
+				if (1 == _M_weak_count--)
 				{
-					_GLIBCXX_SYNCHRONIZATION_HAPPENS_AFTER(&_M_weak_count);
 					_M_destroy();
 				}
 			}
@@ -122,22 +57,13 @@
 
 		void _M_weak_add_ref() noexcept
 		{
-			__gnu_cxx::__atomic_add_dispatch(&_M_weak_count, 1);
+			_M_weak_count++;
 		}
 
 		void _M_weak_release() noexcept				//								?
 		{
-			// Be race-detector-friendly. For more info see bits/c++config.
-			_GLIBCXX_SYNCHRONIZATION_HAPPENS_BEFORE(&_M_weak_count);
-			if (__gnu_cxx::__exchange_and_add_dispatch(&_M_weak_count, -1) == 1)
-			{
-				_GLIBCXX_SYNCHRONIZATION_HAPPENS_AFTER(&_M_weak_count);
-				if (_Mutex_base<_Lp>::_S_need_barriers)
-				{
-					// See _M_release(),
-					// destroy() must observe results of dispose()
-					__atomic_thread_fence(__ATOMIC_ACQ_REL);
-				}
+			if (1 == _M_weak_count--) {
+				atomic_thread_fence(memory_order_acq_rel);
 				_M_destroy();
 			}
 		}
@@ -146,114 +72,40 @@
 		{
 			// No memory barrier is used here so there is no synchronization
 			// with other threads.
-			return __atomic_load_n(&_M_use_count, __ATOMIC_RELAXED);				//								?
+			return _M_use_count.load(memory_order_relaxed);				//								?
 		}
 
 	private:
 		_Sp_counted_base(_Sp_counted_base const&) = delete;
 		_Sp_counted_base& operator=(_Sp_counted_base const&) = delete;
 
-		_Atomic_word  _M_use_count;     // #shared
-		_Atomic_word  _M_weak_count;    // #weak + (#shared != 0)
+		atomic_int  _M_use_count;     // #shared
+		atomic_int  _M_weak_count;    // #weak + (#shared != 0)
 	};
 
-	template<>
-	inline void _Sp_counted_base<_S_single>::M_add_ref_lock()
-	{
-		if (_M_use_count == 0)	__throw_bad_weak_ptr();
-		++_M_use_count;
-	}
-
-	template<>
-	inline void _Sp_counted_base<_S_mutex>::_M_add_ref_lock()
-	{
-		__gnu_cxx::__scoped_lock sentry(*this);				//								?
-		if (__gnu_cxx::__exchange_and_add_dispatch(&_M_use_count, 1) == 0) {
-			_M_use_count = 0;
-			__throw_bad_weak_ptr();
-		}
-	}
-
-	template<>
-	inline void _Sp_counted_base<_S_atomic>::_M_add_ref_lock()
+inline void _Sp_counted_base::_M_add_ref_lock()
 	{
 		// Perform lock-free add-if-not-zero operation.
-		_Atomic_word __count = _M_get_use_count();
+		int __count = _M_get_use_count();
 		do {
-			if (__count == 0)	__throw_bad_weak_ptr();
+			if (__count == 0)	bad_weak_ptr_exception();
 			// Replace the current counter value with the old value + 1, as
 			// long as it's not changed meanwhile.
-		} while (!__atomic_compare_exchange_n(&_M_use_count, &__count, __count + 1,
-													true, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED));
+		} while (!atomic_compare_exchange_strong(&_M_use_count, &__count, __count + 1));
 	}
 
-	template<>
-	inline bool _Sp_counted_base<_S_single>::_M_add_ref_lock_nothrow()
-	{
-		if (_M_use_count == 0)	return false;
-		++_M_use_count;
-		return true;
-	}
-
-	template<>
-	inline bool _Sp_counted_base<_S_mutex>::_M_add_ref_lock_nothrow()
-	{
-		__gnu_cxx::__scoped_lock sentry(*this);
-		if (__gnu_cxx::__exchange_and_add_dispatch(&_M_use_count, 1) == 0) {
-			_M_use_count = 0;
-			return false;
-		}
-		return true;
-	}
-
-	template<>
-	inline bool _Sp_counted_base<_S_atomic>::_M_add_ref_lock_nothrow()
+	inline bool _Sp_counted_base::_M_add_ref_lock_nothrow()
 	{
 		// Perform lock-free add-if-not-zero operation.
-		_Atomic_word __count = _M_get_use_count();
+		int __count = _M_get_use_count();
 		do {
 			if (__count == 0)
 				return false;
 			// Replace the current counter value with the old value + 1, as
 			// long as it's not changed meanwhile.
-		} while (!__atomic_compare_exchange_n(&_M_use_count, &__count, __count + 1,
-												true, __ATOMIC_ACQ_REL, __ATOMIC_RELAXED));
+		} while (!atomic_compare_exchange_strong(&_M_use_count, &__count, __count + 1));
 		return true;
 	}
-
-	template<>
-	inline void _Sp_counted_base<_S_single>::_M_add_ref_copy() {
-		++_M_use_count;
-	}
-
-	template<>
-	inline void _Sp_counted_base<_S_single>::_M_release() noexcept
-	{
-		if (--_M_use_count == 0) {
-			_M_dispose();
-
-			if (--_M_weak_count == 0) _M_destroy();
-		}
-	}
-
-	template<>
-	inline void _Sp_counted_base<_S_single>::_M_weak_add_ref() noexcept
-	{
-		++_M_weak_count;
-	}
-
-	template<>
-	inline void _Sp_counted_base<_S_single>::_M_weak_release() noexcept
-	{
-		if (--_M_weak_count == 0) _M_destroy();
-	}
-
-	template<>
-	inline long _Sp_counted_base<_S_single>::_M_get_use_count() const noexcept
-	{
-		return _M_use_count;
-	}
-
 
 	// Forward declarations.
 	template<typename _Tp, _Lock_policy _Lp = __default_lock_policy>
@@ -351,69 +203,6 @@
 		_Tp _M_tp;
 	};
 
-	// Support for custom deleter and/or allocator
-	template<typename _Ptr, typename _Deleter, typename _Alloc, _Lock_policy _Lp>
-	class _Sp_counted_deleter final : public _Sp_counted_base<_Lp>
-	{
-		class _Impl : _Sp_ebo_helper<0, _Deleter>, _Sp_ebo_helper<1, _Alloc>
-		{
-			typedef _Sp_ebo_helper<0, _Deleter>	_Del_base;
-			typedef _Sp_ebo_helper<1, _Alloc>	_Alloc_base;
-
-		public:
-			_Impl(_Ptr __p, _Deleter __d, const _Alloc& __a) noexcept
-				: _M_ptr(__p), _Del_base(std::move(__d)), _Alloc_base(__a)
-			{ }
-
-			_Deleter& _M_del() noexcept { return _Del_base::_S_get(*this); }
-			_Alloc& _M_alloc() noexcept { return _Alloc_base::_S_get(*this); }
-
-			_Ptr _M_ptr;
-		};
-
-	public:
-		using __allocator_type = __alloc_rebind<_Alloc, _Sp_counted_deleter>;
-
-		// __d(__p) must not throw.
-		_Sp_counted_deleter(_Ptr __p, _Deleter __d) noexcept
-			: _M_impl(__p, std::move(__d), _Alloc()) 
-		{ }
-
-		// __d(__p) must not throw.
-		_Sp_counted_deleter(_Ptr __p, _Deleter __d, const _Alloc& __a) noexcept
-			: _M_impl(__p, std::move(__d), __a) 
-		{ }
-
-		~_Sp_counted_deleter() noexcept { }
-
-		virtual void _M_dispose() noexcept
-		{
-			_M_impl._M_del()(_M_impl._M_ptr);
-		}
-
-		virtual void
-			_M_destroy() noexcept
-		{
-			__allocator_type __a(_M_impl._M_alloc());
-			__allocated_ptr<__allocator_type> __guard_ptr{ __a, this };
-			this->~_Sp_counted_deleter();
-		}
-
-		virtual void*
-			_M_get_deleter(const std::type_info& __ti) noexcept
-		{
-#if __cpp_rtti
-			// _GLIBCXX_RESOLVE_LIB_DEFECTS
-			// 2400. shared_ptr's get_deleter() should use addressof()
-			return __ti == typeid(_Deleter) ? std::__addressof(_M_impl._M_del()) : nullptr;
-#else
-			return nullptr;
-#endif
-		}
-
-	private:
-		_Impl _M_impl;
-	};
 
 	// helpers for make_shared / allocate_shared
 
@@ -437,86 +226,6 @@
 	struct _Sp_alloc_shared_tag
 	{
 		const _Alloc& _M_a;
-	};
-
-	template<typename _Tp, typename _Alloc, _Lock_policy _Lp>
-	class _Sp_counted_ptr_inplace final : public _Sp_counted_base<_Lp>
-	{
-		class _Impl : _Sp_ebo_helper<0, _Alloc>
-		{
-			typedef _Sp_ebo_helper<0, _Alloc>	_A_base;
-
-		public:
-			explicit _Impl(_Alloc __a) noexcept : _A_base(__a) { }
-
-			_Alloc& _M_alloc() noexcept { return _A_base::_S_get(*this); }
-
-			__gnu_cxx::__aligned_buffer<_Tp> _M_storage;
-		};
-
-	public:
-		using __allocator_type = __alloc_rebind<_Alloc, _Sp_counted_ptr_inplace>;
-
-		// Alloc parameter is not a reference so doesn't alias anything in __args
-		template<typename... _Args>
-		_Sp_counted_ptr_inplace(_Alloc __a, _Args&&... __args)
-		: _M_impl(__a)
-		{
-			// _GLIBCXX_RESOLVE_LIB_DEFECTS
-			// 2070.  allocate_shared should use allocator_traits<A>::construct
-			allocator_traits<_Alloc>::construct(__a, _M_ptr(),
-				std::forward<_Args>(__args)...); // might throw
-		}
-
-		~_Sp_counted_ptr_inplace() noexcept { }
-
-		virtual void _M_dispose() noexcept
-		{
-			allocator_traits<_Alloc>::destroy(_M_impl._M_alloc(), _M_ptr());
-		}
-
-		// Override because the allocator needs to know the dynamic type
-		virtual void _M_destroy() noexcept
-		{
-			__allocator_type __a(_M_impl._M_alloc());
-			__allocated_ptr<__allocator_type> __guard_ptr{ __a, this };
-			this->~_Sp_counted_ptr_inplace();
-		}
-
-	private:
-		friend class __shared_count<_Lp>; // To be able to call _M_ptr().
-
-		// No longer used, but code compiled against old libstdc++ headers
-		// might still call it from __shared_ptr ctor to get the pointer out.
-		virtual void* _M_get_deleter(const std::type_info& __ti) noexcept override
-		{
-			auto __ptr = const_cast<typename remove_cv<_Tp>::type*>(_M_ptr());
-			// Check for the fake type_info first, so we don't try to access it
-			// as a real type_info object. Otherwise, check if it's the real
-			// type_info for this class. With RTTI enabled we can check directly,
-			// or call a library function to do it.
-			if (&__ti == &_Sp_make_shared_tag::_S_ti()
-				||
-#if __cpp_rtti
-				__ti == typeid(_Sp_make_shared_tag)
-#else
-				_Sp_make_shared_tag::_S_eq(__ti)
-#endif
-				)
-				return __ptr;
-			return nullptr;
-		}
-
-		_Tp* _M_ptr() noexcept { return _M_impl._M_storage._M_ptr(); }
-
-		_Impl _M_impl;
-	};
-
-	// The default deleter for shared_ptr<T[]> and shared_ptr<T[N]>.
-	struct __sp_array_delete
-	{
-		template<typename _Yp>
-		void operator()(_Yp* __p) const { delete[] __p; }
 	};
 
 	template<_Lock_policy _Lp>
