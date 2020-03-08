@@ -2,51 +2,28 @@
 #ifndef _SHARED_PTR_H
 #define _SHARED_PTR_H 1
 
-#include <shared_ptr_base.h>
+#include "shared_ptr_base.h"
 
-namespace std _GLIBCXX_VISIBILITY(default)
+namespace std
 {
-	_GLIBCXX_BEGIN_NAMESPACE_VERSION
 
-		/**
-		 * @addtogroup pointer_abstractions
-		 * @{
-		 */
+	/**
+	 * @addtogroup pointer_abstractions
+	 * @{
+	 */
 
-		 // 20.7.2.2.11 shared_ptr I/O
+	 // 20.7.2.2.11 shared_ptr I/O
 
-		 /// Write the stored pointer to an ostream.
-		 /// @relates shared_ptr
-		template<typename _Ch, typename _Tr, typename _Tp, _Lock_policy _Lp>
-	inline std::basic_ostream<_Ch, _Tr>& operator<<(std::basic_ostream<_Ch, _Tr>& __os, const __shared_ptr<_Tp, _Lp>& __p)
+	 /// Write the stored pointer to an ostream.
+	 /// @relates shared_ptr
+	template<typename _Ch, typename _Tr, typename _Tp>
+	inline std::basic_ostream<_Ch, _Tr>& operator<<(std::basic_ostream<_Ch, _Tr>& __os, const __shared_ptr<_Tp>& __p)
 	{
 		__os << __p.get();
 		return __os;
 	}
 
-	template<typename _Del, typename _Tp, _Lock_policy _Lp>
-	inline _Del* get_deleter(const __shared_ptr<_Tp, _Lp>& __p) noexcept
-	{
-#if __cpp_rtti
-		return static_cast<_Del*>(__p._M_get_deleter(typeid(_Del)));
-#else
-		return 0;
-#endif
-	}
 
-	/// 20.7.2.2.10 shared_ptr get_deleter
-
-	/// If `__p` has a deleter of type `_Del`, return a pointer to it.
-	/// @relates shared_ptr
-	template<typename _Del, typename _Tp>
-	inline _Del* get_deleter(const shared_ptr<_Tp>& __p) noexcept
-	{
-#if __cpp_rtti
-		return static_cast<_Del*>(__p._M_get_deleter(typeid(_Del)));
-#else
-		return 0;
-#endif
-	}
 
 	/**
 	 *  @brief  A smart pointer with reference-counted copy semantics.
@@ -256,28 +233,11 @@ namespace std _GLIBCXX_VISIBILITY(default)
 		template<typename _Yp, typename = _Constructible<const weak_ptr<_Yp>&>>
 		explicit shared_ptr(const weak_ptr<_Yp>& __r) : __shared_ptr<_Tp>(__r) { }
 
-#if _GLIBCXX_USE_DEPRECATED
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-		template<typename _Yp, typename = _Constructible<auto_ptr<_Yp>>>
-		shared_ptr(auto_ptr<_Yp>&& __r);
-#pragma GCC diagnostic pop
-#endif
 
 		// _GLIBCXX_RESOLVE_LIB_DEFECTS
 		// 2399. shared_ptr's constructor from unique_ptr should be constrained
 		template<typename _Yp, typename _Del, typename = _Constructible<unique_ptr<_Yp, _Del>>>
 		shared_ptr(unique_ptr<_Yp, _Del>&& __r) : __shared_ptr<_Tp>(std::move(__r)) { }
-
-#if __cplusplus <= 201402L && _GLIBCXX_USE_DEPRECATED
-		// This non-standard constructor exists to support conversions that
-		// were possible in C++11 and C++14 but are ill-formed in C++17.
-		// If an exception is thrown this constructor has no effect.
-		template<typename _Yp, typename _Del,
-			_Constructible<unique_ptr<_Yp, _Del>, __sp_array_delete>* = 0>
-			shared_ptr(unique_ptr<_Yp, _Del>&& __r)
-			: __shared_ptr<_Tp>(std::move(__r), __sp_array_delete()) { }
-#endif
 
 		/**
 		 *  @brief  Construct an empty %shared_ptr.
@@ -356,49 +316,49 @@ namespace std _GLIBCXX_VISIBILITY(default)
 
 	/// Equality operator for shared_ptr objects, compares the stored pointers
 	template<typename _Tp, typename _Up>
-	_GLIBCXX_NODISCARD inline bool operator==(const shared_ptr<_Tp>& __a, const shared_ptr<_Up>& __b) noexcept
+	inline bool operator==(const shared_ptr<_Tp>& __a, const shared_ptr<_Up>& __b) noexcept
 	{
 		return __a.get() == __b.get();
 	}
 
 	/// shared_ptr comparison with nullptr
 	template<typename _Tp>
-	_GLIBCXX_NODISCARD inline bool operator==(const shared_ptr<_Tp>& __a, nullptr_t) noexcept
+	inline bool operator==(const shared_ptr<_Tp>& __a, nullptr_t) noexcept
 	{
 		return !__a;
 	}
 
 	/// shared_ptr comparison with nullptr
 	template<typename _Tp>
-	_GLIBCXX_NODISCARD inline bool operator==(nullptr_t, const shared_ptr<_Tp>& __a) noexcept
+	inline bool operator==(nullptr_t, const shared_ptr<_Tp>& __a) noexcept
 	{
 		return !__a;
 	}
 
 	/// Inequality operator for shared_ptr objects, compares the stored pointers
 	template<typename _Tp, typename _Up>
-	_GLIBCXX_NODISCARD inline bool operator!=(const shared_ptr<_Tp>& __a, const shared_ptr<_Up>& __b) noexcept
+	inline bool operator!=(const shared_ptr<_Tp>& __a, const shared_ptr<_Up>& __b) noexcept
 	{
 		return __a.get() != __b.get();
 	}
 
 	/// shared_ptr comparison with nullptr
 	template<typename _Tp>
-	_GLIBCXX_NODISCARD inline bool operator!=(const shared_ptr<_Tp>& __a, nullptr_t) noexcept
+	inline bool operator!=(const shared_ptr<_Tp>& __a, nullptr_t) noexcept
 	{
 		return (bool)__a;
 	}
 
 	/// shared_ptr comparison with nullptr
 	template<typename _Tp>
-	_GLIBCXX_NODISCARD inline bool operator!=(nullptr_t, const shared_ptr<_Tp>& __a) noexcept
+	inline bool operator!=(nullptr_t, const shared_ptr<_Tp>& __a) noexcept
 	{
 		return (bool)__a;
 	}
 
 	/// Relational operator for shared_ptr objects, compares the stored pointers
 	template<typename _Tp, typename _Up>
-	_GLIBCXX_NODISCARD inline bool operator<(const shared_ptr<_Tp>& __a, const shared_ptr<_Up>& __b) noexcept
+	inline bool operator<(const shared_ptr<_Tp>& __a, const shared_ptr<_Up>& __b) noexcept
 	{
 		using _Tp_elt = typename shared_ptr<_Tp>::element_type;
 		using _Up_elt = typename shared_ptr<_Up>::element_type;
@@ -408,7 +368,7 @@ namespace std _GLIBCXX_VISIBILITY(default)
 
 	/// shared_ptr comparison with nullptr
 	template<typename _Tp>
-	_GLIBCXX_NODISCARD inline bool operator<(const shared_ptr<_Tp>& __a, nullptr_t) noexcept
+	inline bool operator<(const shared_ptr<_Tp>& __a, nullptr_t) noexcept
 	{
 		using _Tp_elt = typename shared_ptr<_Tp>::element_type;
 		return less<_Tp_elt*>()(__a.get(), nullptr);
@@ -416,7 +376,7 @@ namespace std _GLIBCXX_VISIBILITY(default)
 
 	/// shared_ptr comparison with nullptr
 	template<typename _Tp>
-	_GLIBCXX_NODISCARD inline bool operator<(nullptr_t, const shared_ptr<_Tp>& __a) noexcept
+	inline bool operator<(nullptr_t, const shared_ptr<_Tp>& __a) noexcept
 	{
 		using _Tp_elt = typename shared_ptr<_Tp>::element_type;
 		return less<_Tp_elt*>()(nullptr, __a.get());
@@ -424,63 +384,63 @@ namespace std _GLIBCXX_VISIBILITY(default)
 
 	/// Relational operator for shared_ptr objects, compares the stored pointers
 	template<typename _Tp, typename _Up>
-	_GLIBCXX_NODISCARD inline bool operator<=(const shared_ptr<_Tp>& __a, const shared_ptr<_Up>& __b) noexcept
+	inline bool operator<=(const shared_ptr<_Tp>& __a, const shared_ptr<_Up>& __b) noexcept
 	{
 		return !(__b < __a);
 	}
 
 	/// shared_ptr comparison with nullptr
 	template<typename _Tp>
-	_GLIBCXX_NODISCARD inline bool operator<=(const shared_ptr<_Tp>& __a, nullptr_t) noexcept
+	inline bool operator<=(const shared_ptr<_Tp>& __a, nullptr_t) noexcept
 	{
 		return !(nullptr < __a);
 	}
 
 	/// shared_ptr comparison with nullptr
 	template<typename _Tp>
-	_GLIBCXX_NODISCARD inline bool operator<=(nullptr_t, const shared_ptr<_Tp>& __a) noexcept
+	inline bool operator<=(nullptr_t, const shared_ptr<_Tp>& __a) noexcept
 	{
 		return !(__a < nullptr);
 	}
 
 	/// Relational operator for shared_ptr objects, compares the stored pointers
 	template<typename _Tp, typename _Up>
-	_GLIBCXX_NODISCARD inline bool operator>(const shared_ptr<_Tp>& __a, const shared_ptr<_Up>& __b) noexcept
+	inline bool operator>(const shared_ptr<_Tp>& __a, const shared_ptr<_Up>& __b) noexcept
 	{
 		return (__b < __a);
 	}
 
 	/// shared_ptr comparison with nullptr
 	template<typename _Tp>
-	_GLIBCXX_NODISCARD inline bool operator>(const shared_ptr<_Tp>& __a, nullptr_t) noexcept
+	inline bool operator>(const shared_ptr<_Tp>& __a, nullptr_t) noexcept
 	{
 		return nullptr < __a;
 	}
 
 	/// shared_ptr comparison with nullptr
 	template<typename _Tp>
-	_GLIBCXX_NODISCARD inline bool operator>(nullptr_t, const shared_ptr<_Tp>& __a) noexcept
+	inline bool operator>(nullptr_t, const shared_ptr<_Tp>& __a) noexcept
 	{
 		return __a < nullptr;
 	}
 
 	/// Relational operator for shared_ptr objects, compares the stored pointers
 	template<typename _Tp, typename _Up>
-	_GLIBCXX_NODISCARD inline bool operator>=(const shared_ptr<_Tp>& __a, const shared_ptr<_Up>& __b) noexcept
+	inline bool operator>=(const shared_ptr<_Tp>& __a, const shared_ptr<_Up>& __b) noexcept
 	{
 		return !(__a < __b);
 	}
 
 	/// shared_ptr comparison with nullptr
 	template<typename _Tp>
-	_GLIBCXX_NODISCARD inline bool operator>=(const shared_ptr<_Tp>& __a, nullptr_t) noexcept
+	inline bool operator>=(const shared_ptr<_Tp>& __a, nullptr_t) noexcept
 	{
 		return !(__a < nullptr);
 	}
 
 	/// shared_ptr comparison with nullptr
 	template<typename _Tp>
-	_GLIBCXX_NODISCARD inline bool operator>=(nullptr_t, const shared_ptr<_Tp>& __a) noexcept
+	inline bool operator>=(nullptr_t, const shared_ptr<_Tp>& __a) noexcept
 	{
 		return !(nullptr < __a);
 	}
@@ -847,7 +807,6 @@ namespace std _GLIBCXX_VISIBILITY(default)
 	}  // namespace __detail::__variant
 #endif // C++17
 
-	_GLIBCXX_END_NAMESPACE_VERSION
-} // namespace
+}// namespace
 
 #endif // _SHARED_PTR_H
