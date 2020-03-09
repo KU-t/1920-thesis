@@ -4,7 +4,7 @@
 namespace LFSP {
 
 	inline void bad_pointer() {
-		printf("bad_pointer");
+		std::cout << "bad_pointer";
 		system("pause");
 	}
 

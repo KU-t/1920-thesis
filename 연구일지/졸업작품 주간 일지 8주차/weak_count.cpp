@@ -1,3 +1,4 @@
+#include <iostream>
 #include "weak_count.h"
 #include "shared_count.h"
 #include "count_base.h"

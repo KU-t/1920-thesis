@@ -247,14 +247,14 @@ namespace LFSP {
 		return (bool)__a;
 	}
 
-	template<typename _Tp, typename _Up>
-	inline bool operator<(const __shared_ptr<_Tp>& __a, const __shared_ptr<_Up>& __b) noexcept
-	{
-		using _Tp_elt = typename __shared_ptr<_Tp>::element_type;
-		using _Up_elt = typename __shared_ptr<_Up>::element_type;
-		using _Vp = typename common_type<_Tp_elt*, _Up_elt*>::type;
-		return std::less<_Vp>()(__a.get(), __b.get());
-	}
+	//template<typename _Tp, typename _Up>
+	//inline bool operator<(const __shared_ptr<_Tp>& __a, const __shared_ptr<_Up>& __b) noexcept
+	//{
+	//	using _Tp_elt = typename __shared_ptr<_Tp>::element_type;
+	//	using _Up_elt = typename __shared_ptr<_Up>::element_type;
+	//	using _Vp = typename common_type<_Tp_elt*, _Up_elt*>::type;
+	//	return std::less<_Vp>()(__a.get(), __b.get());
+	//}
 
 	template<typename _Tp>
 	inline bool operator<(const __shared_ptr<_Tp>& __a, nullptr_t) noexcept

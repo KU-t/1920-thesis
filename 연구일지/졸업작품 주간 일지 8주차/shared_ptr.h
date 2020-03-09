@@ -15,7 +15,7 @@ namespace LFSP {
 	}
 
 	template<typename _Tp>
-	class shared_ptr : __shared_ptr<_Tp>
+	class shared_ptr : public __shared_ptr<_Tp>
 	{
 	public:
 		using element_type = typename _Tp;
@@ -336,11 +336,11 @@ namespace LFSP {
 			return *this;
 		}
 
-		shared_ptr& operator=(shared_ptr&& __r) noexcept 
-		{
-			this->shared_ptr<_Tp>::operator=(std::move(__r));
-			return *this;
-		}
+		//shared_ptr& operator=(shared_ptr&& __r) noexcept 
+		//{
+		//	this->shared_ptr<_Tp>::operator=(std::move(__r));
+		//	return *this;
+		//}
 
 		template<typename _Yp>
 		shared_ptr<_Yp> operator=(shared_ptr<_Yp>&& __r) noexcept

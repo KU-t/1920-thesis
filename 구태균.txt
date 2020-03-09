@@ -194,3 +194,34 @@ int main()
     - 생성자, Copy, Move, 소멸자
     - enable_shared_from_this는 나중에
  - 2월 26일 수요일 오후 4시
+
+
+2020-03-09
+------------
+1. 진행상황
+ - GCC에 있는 shared_ptr 소스코드를 Visual Studio에서 실행하려고 하는데 자꾸 컴파일에러가 난다.
+  => 소스코드가 읽기 어려운 template programming방식이어서 이해하기가 너무 어렵다.
+
+2. 대책
+ - GCC에 있는 방대한 소스의 컴파일 버그를 찾으려는 노력보다는, 간단하게 shared_ptr를 구현하고 부족한 기능을 하나하나 추가해본다.
+  필요한 기능을 추가하다가 보면 왜 Gcc 소스코드가 그렇게 되어 있는지 이해하게되고, 결국 GCC소스와 거의 같아지게 될 것이다.
+ - 구현 단계
+  * 생성자
+  * = operator
+  * 소멸자
+  * atomic reference counting
+  * get
+  * * operator
+  * -> operator
+  * use_count
+  * bool operator
+  * make_shared
+  * == operator
+  * atomic_load
+  * atomic_store
+  * enable_shared_from_this
+
+3. 다음 미팅
+ - 3월 23일 월요일 오후 2시
+ - 위의 구현단계에 적힌 것들을 구현해 오기.
+ 
