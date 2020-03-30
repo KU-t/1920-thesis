@@ -129,12 +129,6 @@ namespace LFSP {
 			ctr = other.ctr;
 		}
 
-		template<typename Tp>
-		shared_ptr(const weak_ptr<Tp>& other) 
-			: ptr(other.ptr), ctr(other.ctr)
-		{
-			
-		}
 		
 		shared_ptr& operator=(const shared_ptr& other)
 		{
@@ -337,6 +331,9 @@ namespace LFSP {
 
 		shared_ptr<Tp> lock() const 
 		{
+			// shared_ptr 존재확인 *****
+			// o -> shared_ptr
+			// x -> nullptr
 			return shared_ptr<Tp>(*this);
 		}
 
@@ -399,6 +396,7 @@ namespace LFSP {
 	template<typename Tp>
 	Tp atomic_store(const shared_ptr<Tp>* sptr, Tp ptr)
 	{
+		//  ref 증가
 		sptr->ptr = ptr;
 
 		return sptr->get();
