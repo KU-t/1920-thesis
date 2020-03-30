@@ -225,3 +225,20 @@ int main()
  - 3월 23일 월요일 오후 2시
  - 위의 구현단계에 적힌 것들을 구현해 오기.
  
+2020-03-30
+------------
+1. 진행상황
+ - 구현
+  * shared_ptr다 구현
+  * make_shared 구현
+  * atomic_load, atomic_stre미구현
+   => reference counter옆에 mutex를 두어서 그것으로 atomic구현
+  * enable_shared_from_this는 VS구현이 너무 보기 힘들다.
+ - 테스트프로그램
+  * weak_ptr 구현
+    => lock() 미구현
+
+2. 다음미팅
+ - enable shared from this 구현
+ - 구현이 되면 Blcking Atomic Shared Pointer구현
+ - 다음 미팅 4월 13일 (2시)
