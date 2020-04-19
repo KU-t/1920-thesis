@@ -242,3 +242,10 @@ int main()
  - enable shared from this 구현
  - 구현이 되면 Blcking Atomic Shared Pointer구현
  - 다음 미팅 4월 13일 (2시)
+
+2020-04-13
+-------------
+1. 연구일지 매주 작성 필요
+
+2. 헉. 타이핑한것이 날라갔다. 언제 보기로 했지????
+
