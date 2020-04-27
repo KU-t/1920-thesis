@@ -262,3 +262,42 @@ int main()
 3. 다음 미팅
  4월 27일 월요일 오후 2시 학교
 
+2020-04-27
+------------
+1. 5월 11일 중간발표
+ - 발표형식 미정 : 동영상 제출, 학교에서 한팀씩 들어와서 발표, 지도교수 판단.....
+
+2. 진행상황
+ - Blocking shared pointer 구현 : shared_ptr, make_shared, weak_ptr, enable_shared_from_this
+ - 기본 데이터 Type에서 enable_shared_from_this가 안됨. => 구태균의 착각 기본데이터 타입에 enable_shared_from_this는 붙지 않는다.
+
+    shared_ptr <int> sp_a = make_shared(int(1));
+    shared_ptr <int> sp_b = sp_a;
+    weak_ptr <int> wp_a = sp_a;
+    weak_ptr <int> wp_b = wp_a;
+
+ - 현재 주화입마에 빠져서 기본데이터의 ref_counter가 증가하지 않는 버그가 있는데, 수정할 것.
+ - 컴파일 되면 안되는 오류코드가 컴파일됨 => 컴파일 에러를 내는 저주의 문장을 추가할 필요가 있음.
+
+3. 중간 발표 준비
+  ~ 4월 27일   : Blocking shared pointer 구현 : shared_ptr, make_shared, weak_ptr, enable_shared_from_this
+  ~ 5월 4일    :  오류 수정, 발표자료 작성
+  ~ 5월 11일   :  발표 준비.
+
+4. 논문 제출 준비
+ - 정보과학회 : 비슷한 짝퉁 학회들이 여러곳 있음.
+ - 게임 학회 : 한국게임학회 (Korea Academic Society of Games), Journal of The Korean Society for Computer Game (KSCG), 
+ - 일단은 학국게임확회를 목표로 작성하자 : 10월달까지 게제 여부가 결정되는 논문지의 제출 DeadLine알아보기..
+    * 10월20일 게제이며, 제출 DeadLine은 9월 10일이다.
+
+5.다음 미팅
+ - 5월 4일 월요일 오후 2시 : 발표자료 작성, 벤치마크 프로그램을 작성해서 성능비교 해오기(std::shared_ptr와 비교)
+
+        	std::atomic<std::shared_ptr<int>> a = std::make_shared<int> (10 );
+	std::atomic<std::shared_ptr<int>> b = a.load();
+
+6. 과제 수행 : 졸업할 때 까지. 80만원??? 5월이전에 결말.
+
+
+
+
