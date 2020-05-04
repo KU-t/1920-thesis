@@ -83,7 +83,7 @@ private:
 	int HP;
 };
 
-void main() {
+int main() {
 
 	{
 		//// 1. make_shared<int>
@@ -377,8 +377,14 @@ void main() {
 		LFSP::shared_ptr<int> _ptr = LFSP::make_shared<int>(10);
 		LFSP::weak_ptr<int> _ptr_wc(_ptr);
 		LFSP::weak_ptr<int> _ptr_w;
+
+		
 		_ptr_w = _ptr_wc;
-	}	
+		std::cout << "Weak Ptr _ptr_w" << &_ptr_w << std::endl;
+		std::cout << "Weak Ptr _ptr_wc" << &_ptr_wc << std::endl;
+		std::cout << "Control Block : " << _ptr_w.get_control_block() << std::endl;
+		std::cout << "Weak Count of _ptr_w : " << _ptr_w.get_weak_counter() << std::endl;
+	}
 		
 	{	
 		// 28. weak_ptr = weak_ptr<T>
@@ -393,6 +399,7 @@ void main() {
 	}	
 		
 	{	
+		std::cout << "\n\nTest 29\n";
 		// 29. weak_ptr = weak_ptr<enable_from_T>
 		std::shared_ptr<stdTEST> ptr = std::make_shared<stdTEST>(1, 10);
 		std::weak_ptr<stdTEST> ptr_wc(ptr);
@@ -406,6 +413,7 @@ void main() {
 
 	{
 		// 30. [method] reset()
+		std::cout << "\n\nTest 30\n";
 		std::shared_ptr<stdTEST> ptr = std::make_shared<stdTEST>(1, 10);
 		std::weak_ptr<stdTEST> ptr_w(ptr);
 		ptr_w.reset();

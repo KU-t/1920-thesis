@@ -1,5 +1,5 @@
 #pragma once
-
+#include <Windows.h>
 #include <atomic>
 #include <mutex>
 
@@ -26,6 +26,11 @@ namespace LFSP {
 		virtual ~ctr_block()
 		{}
 
+		int get_weak_count()
+		{
+			return weak_count;
+		}
+
 		void add_ref_copy()
 		{
 			use_count++;
@@ -38,8 +43,14 @@ namespace LFSP {
 				std::atomic_thread_fence(std::memory_order_acquire);
 				delete ptr;
 
-				if (weak_count == 0)
+				if (weak_count == 0) {
+					//DebugBreak();
+					std::cout << "THIS : " << this << std::endl;
+					std::cout << "weak_count : " << weak_count << std::endl;
+					std::cout << "PTR : " << this->ptr << std::endl;
+					std::cout << "use_count : " << use_count << std::endl;
 					delete this;
+				}
 			}
 		}
 
@@ -61,6 +72,7 @@ namespace LFSP {
 
 		void weak_release() noexcept
 		{
+			std::cout << "Weak Release Called, on : " << this << "  weak_count = " << weak_count << std::endl;
 			if (1 == weak_count--)
 			{
 				std::atomic_thread_fence(std::memory_order_acq_rel);
@@ -342,10 +354,21 @@ namespace LFSP {
 	class weak_ptr
 	{
 	public:
+		ctr_block<Tp> * get_control_block()
+		{
+			return ctr;
+		}
+
+		int get_weak_counter()
+		{
+			return ctr->get_weak_count();
+		}
 
 		weak_ptr()
 			: ptr(nullptr), ctr(nullptr)
-		{}
+		{
+			std::cout << "Creating Weak Pointer from nothing!\n";
+		}
 
 		weak_ptr(nullptr_t)
 			: weak_ptr()
@@ -355,6 +378,9 @@ namespace LFSP {
 		{
 			if (!other.ctr)
 				return;
+
+			//DebugBreak();
+			std::cout << "Creating Weak Pointer from shared pointer!\n";
 
 			other.ctr->weak_add_ref();
 
@@ -368,6 +394,8 @@ namespace LFSP {
 		{
 			if (!other.ctr)	return;
 
+			std::cout << "Creating Weak Pointer from Weak Pointer!\n";
+
 			other.ctr->weak_add_ref();
 
 			other.ctr->lock();
@@ -378,6 +406,7 @@ namespace LFSP {
 
 		~weak_ptr()
 		{
+			std::cout << "Destruct Weak_Ptr : " << this << std::endl;
 			if (!ptr)	return;
 
 			ctr->weak_release();
