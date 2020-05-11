@@ -201,13 +201,21 @@ namespace LFSP {
 			return ctr;
 		}
 
-		shared_ptr()
-			: ptr(nullptr), ctr(nullptr)
-		{}
+		constexpr shared_ptr() noexcept
+		{	// construct empty shared_ptr
+		}
 
-		shared_ptr(nullptr_t)
-			: shared_ptr()
-		{}
+		constexpr shared_ptr(nullptr_t) noexcept
+		{	// construct empty shared_ptr
+		}
+
+		//shared_ptr()
+		//	: ptr(nullptr), ctr(nullptr)
+		//{}
+
+		//shared_ptr(nullptr_t)
+		//	: shared_ptr()
+		//{}
 
 		shared_ptr(Tp* other)
 			: ptr(other), ctr(new ctr_block<Tp>(other))
@@ -245,9 +253,23 @@ namespace LFSP {
 			other.ctr->unlock();
 		}
 
+		shared_ptr& operator=(nullptr_t)
+		{
+			if (ctr) ctr->release();
+			ctr = nullptr;
+			ptr = nullptr;
+			return *this;
+		}
 
 		shared_ptr& operator=(const shared_ptr& other)
 		{
+			if (nullptr == other) {
+				if (ctr) ctr->release();
+				ctr = nullptr;
+				ptr = nullptr;
+				return *this;
+			}
+
 			if (other.ptr == ptr)
 				return *this;
 
@@ -306,6 +328,11 @@ namespace LFSP {
 		}
 
 		Tp* operator->()
+		{
+			return get();
+		}
+
+		Tp* operator->() const
 		{
 			return get();
 		}

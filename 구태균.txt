@@ -311,4 +311,31 @@ int main()
  - 5월 11일 월요일 7시
 
 
+2020-05-11
+-------------
+1. 기획서 승인이 필요한데 통합정보시스템에서 구태균이 나오지 않음
+ - 과사무실에 문의 했음.
 
+2. 진행상황
+ - Blocikingshared pointer구현: Release 모드에서 오류 => 수정
+  * enable_shared_from_this에서 상속받은 객체의 경우 컨트롤 블럭을 2번 삭제하는 오류가 있었는데, 예외처리로 오류가 나오지 않도록 함.
+  * 뜬금없이 control block이 생성되는 버그는 버그가 아니라 feature였음.
+ - 모든 테스트 프로그램이 문제없이 실행?
+  * NO : const reference로 매개변수를 넘겨 줄 때 컴파일 에러
+   - 선언에 constexpr을 넣고 const 메소드들을 추가로 정의해 주어야 한다.
+ - 런타임 에러 : head = nullptr에서 오류
+  * nullptr_t를 매개변수로 받는 operator=를 정의해야 한다.
+ - 런타임 에러 : 
+       shared_ptr& operator=(const shared_ptr& other)
+  * 위의 메소드에서 에러가 나는데, Data Race때문에 에러가 난다. Data Race를 잡도록, Lock의 보호 밖에서 수행되는 모든 operation은 위험하다!!!!!
+   			if (curr_ctr) {
+				if (false == curr_ctr->release())  // release에서 destory되면 false를 리턴
+					curr_ctr->unlock();
+			}
+  * 위와 같은 방식으로 수정 필요.
+
+3. 다음 미팅
+ - 5월 18일 월요일 7시
+ - 벤치마크프로그램이 실행될 때 까지 디버깅 해 올것.
+
+   

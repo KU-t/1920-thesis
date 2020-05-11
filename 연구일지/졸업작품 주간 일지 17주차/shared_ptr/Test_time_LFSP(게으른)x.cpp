@@ -4,7 +4,7 @@
 #include <chrono>
 #include <vector>
 #include <atomic>
-#include "test.h"
+#include "blocking_shared_ptr.h"
 
 using namespace LFSP;
 using namespace std::chrono;
@@ -82,7 +82,7 @@ public:
 		std::cout << "[ tail ] next_ptr : " << tail->next << std::endl;*/
 	}
 
-	bool validate(/*const */shared_ptr<SPNODE>& pred, /*const */shared_ptr<SPNODE>& curr) {
+	bool validate(const shared_ptr<SPNODE>& pred, /*const */shared_ptr<SPNODE>& curr) {
 		return !pred->removed && !curr->removed && pred->next == curr;
 	}
 
@@ -216,8 +216,8 @@ void thread_func(int num_thread, int num) {
 int main() {
 
 	for (int num_thread = 1; num_thread <= 8; num_thread *= 2) {
-		if(num_thread > 1)
-			DebugBreak();
+		//if(num_thread > 1)
+		//	DebugBreak();
 		clist.Init();
 
 		std::vector<std::thread> threads;
@@ -231,7 +231,7 @@ int main() {
 
 		auto end_time = high_resolution_clock::now();
 		auto exec_time = end_time - start_time;
-		int exec_ms = duration_cast<milliseconds>(exec_time).count();
+		auto exec_ms = duration_cast<milliseconds>(exec_time).count();
 
 		std::cout << "Threads[" << num_thread << "] \t";
 		clist.display20();
