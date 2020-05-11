@@ -263,18 +263,19 @@ namespace LFSP {
 
 		shared_ptr& operator=(const shared_ptr& other)
 		{
-			if (nullptr == other) {
-				if (ctr) ctr->release();
-				ctr = nullptr;
-				ptr = nullptr;
-				return *this;
-			}
-
 			if (other.ptr == ptr)
 				return *this;
 
 			if (ctr)
 				ctr->lock();
+
+			if (nullptr == other) {
+				if (ctr) ctr->release();
+				ctr = nullptr;
+				ptr = nullptr;
+				ctr->unlock();
+				return *this;
+			}
 
 			if (other.ctr)
 				other.ctr->lock();
@@ -294,9 +295,14 @@ namespace LFSP {
 
 			other.ctr->unlock();
 
+			//if (curr_ctr) {
+			//	curr_ctr->unlock();
+			//	curr_ctr->release();
+			//}
+
 			if (curr_ctr) {
-				curr_ctr->unlock();
-				curr_ctr->release();
+				if (false == curr_ctr->release())  // release에서 destory되면 false를 리턴
+					curr_ctr->unlock();
 			}
 
 			return *this;
