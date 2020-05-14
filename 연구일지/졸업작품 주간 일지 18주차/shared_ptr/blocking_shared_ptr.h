@@ -170,7 +170,7 @@ namespace LFSP {
 #ifdef MUTEX_LOCK_TEST
 			std::cout << "Try lock() : " << this << std::endl;
 #endif // MUTEX_LOCK_TEST
-			while (!ml.try_lock()) {}
+			ml.lock();
 		}
 
 		void unlock() {
@@ -768,6 +768,7 @@ namespace LFSP {
 
 		ctr_block<Tp>* ctr;
 		Tp* ptr;
+		mutex sp_lock;
 	};
 
 
