@@ -635,6 +635,8 @@ namespace LFSP {
 
 		weak_ptr& operator=(const shared_ptr<Tp>& other)
 		{
+			std::lock_guard<std::mutex> tl{ sp_lock };
+
 			if (other.ptr == ptr)
 				return *this;
 
