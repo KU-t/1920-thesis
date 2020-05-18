@@ -2,6 +2,8 @@
 
 //#define RELEASE_COUT_DEBUGING_TEST
 //#define MUTEX_LOCK_TEST
+#define CONTROL_BLOCK_MUTEX
+
 
 #include <atomic>
 #include <mutex>
@@ -31,7 +33,19 @@ namespace LFSP {
 
 	template<typename Tp>
 	class ctr_block {
+
+	private:
+
+		std::atomic_int use_count;
+		std::atomic_int	weak_count;
+
+		Tp* ptr;
+
+		ctr_block(const ctr_block&) = delete;
+		ctr_block& operator=(const ctr_block&) = delete;
+
 	public:
+
 
 		// **************************
 #ifdef RELEASE_COUT_DEBUGING_TEST
@@ -71,7 +85,6 @@ namespace LFSP {
 			delete ptr;
 
 			ptr = nullptr;
-
 			return false;
 		}
 
@@ -90,8 +103,7 @@ namespace LFSP {
 #ifdef RELEASE_COUT_DEBUGING_TEST
 				std::cout << "[Control Block release Delete this] : " << this << std::endl;
 #endif // RELEASE_COUT_DEBUGING_TEST
-				
-				ml.unlock();
+
 				delete this;
 
 				return true;
@@ -118,7 +130,6 @@ namespace LFSP {
 
 				return destroy(std::bool_constant<std::conjunction_v<_Can_enable_shared<Tp>>>{});
 			}
-
 			return false;
 		}
 
@@ -146,7 +157,6 @@ namespace LFSP {
 			std::cout << "[ Control_block weak_release ] Weak_count : " << weak_count << std::endl;
 #endif // RELEASE_COUT_DEBUGING_TEST
 
-
 			if (1 == weak_count--)
 			{
 				std::atomic_thread_fence(std::memory_order_acq_rel);
@@ -155,48 +165,58 @@ namespace LFSP {
 #ifdef RELEASE_COUT_DEBUGING_TEST
 					std::cout << "[Control Block weak_release Delete this] : " << this << std::endl;
 #endif // RELEASE_COUT_DEBUGING_TEST
-
-					ml.unlock();
 					delete this;
 
 					return true;
 				}
 			}
-
 			return false;
 		}
-
-		void lock() {
-#ifdef MUTEX_LOCK_TEST
-			std::cout << "Try lock() : " << this << std::endl;
-#endif // MUTEX_LOCK_TEST
-			ml.lock();
-		}
-
-		void unlock() {
-#ifdef MUTEX_LOCK_TEST
-			std::cout << "Try unlock() : " << this << std::endl;
-#endif // MUTEX_LOCK_TEST
-			ml.unlock();
-		}
-
-	private:
-
-		ctr_block(const ctr_block&) = delete;
-		ctr_block& operator=(const ctr_block&) = delete;
-
-		std::atomic_int use_count;
-		std::atomic_int	weak_count;
-
-		Tp* ptr;
-
-		std::mutex ml;
 	};
 
 	template <typename Tp>
 	class shared_ptr {
 
+	private:
+
+		Tp* ptr;
+		ctr_block<Tp>* ctr;
+		mutable std::mutex sp_lock;
+		mutable bool l;
+
+		template<typename Tp>
+		friend class weak_ptr;
+
+		template<typename Tp, typename... Args>
+		friend shared_ptr<Tp> make_shared(Args&&... _Args);
+
+		template<typename Tp>
+		void _Set_ptr_rep(Tp* other_ptr, ctr_block<Tp>* other_ctr)
+		{
+			ptr = other_ptr;
+			ctr = other_ctr;
+		}
+
+		template<typename Tp>
+		void _Set_ptr_rep_and_enable_shared(Tp* other_ptr, ctr_block<Tp>* other_ctr)
+		{
+			this->_Set_ptr_rep(other_ptr, other_ctr);
+			_Enable_shared_from_this(*this, other_ptr);
+		}
+
 	public:
+
+		void lock() const
+		{
+			sp_lock.lock();
+			l = true;
+		}
+
+		void unlock() const
+		{
+			l = false;
+			sp_lock.unlock();
+		}
 
 		// ********************
 #ifdef RELEASE_COUT_DEBUGING_TEST
@@ -214,6 +234,7 @@ namespace LFSP {
 
 		Tp* get_ptr()
 		{
+			std::lock_guard<std::mutex> get_ptr_guard(sp_lock);
 			return ptr;
 		}
 
@@ -236,88 +257,86 @@ namespace LFSP {
 
 		shared_ptr(const shared_ptr& other)
 		{
-			other.ctr->lock();
+			other.lock();
 
 			other.ctr->add_ref_copy();
 			ptr = other.ptr;
 			ctr = other.ctr;
 
-			other.ctr->unlock();
+			other.unlock();
 		}
 
 		shared_ptr(const weak_ptr<Tp>& other)
 		{
-			other.ctr->lock();
+			other.lock();
 
 			other.ctr->add_ref_copy();
 			ptr = other.ptr;
 			ctr = other.ctr;
 
-			other.ctr->unlock();
+			other.unlock();
 		}
 
 		shared_ptr& operator=(nullptr_t)
 		{
+			lock();
+
 			if (ctr) {
-				ctr->lock();
-
-				ctr_block<Tp>* curr_ctr = ctr;
-
+				ctr->release();
 				ctr = nullptr;
 				ptr = nullptr;
-
-				if (!curr_ctr->release())
-					curr_ctr->unlock();
 			}
+
+			unlock();
 
 			return *this;
 		}
 
 		shared_ptr& operator=(const shared_ptr& other)
 		{
-			if (other.ptr == ptr)
-				return *this;
-
-			if (ctr)
-				ctr->lock();
-
-			if (other.ctr)
-				other.ctr->lock();
-
-			else {
-				if (ctr) {
-					ctr_block<Tp>* curr_ctr = ctr;
-				
-					ctr = nullptr;
-					ptr = nullptr;
-
-					if(!curr_ctr->release())
-						curr_ctr->unlock();
-				}
+			/*lock();
+			if (other.ptr == ptr) {
+				unlock();
 				return *this;
 			}
 
+			other.lock();
+			
 			other.ctr->add_ref_copy();
-
-			ctr_block<Tp>* curr_ctr = ctr;
-
+			if (ctr) {
+				ctr->release();
+			}
 			ptr = other.ptr;
 			ctr = other.ctr;
 
-			other.ctr->unlock();
+			other.unlock();
+			unlock();
 
-			if (curr_ctr) {
-				if(!curr_ctr->release())
-					curr_ctr->unlock();
+			return *this;*/
+
+			lock();
+			if (other.ptr == ptr) {
+				unlock();
+				return *this;
 			}
+
+			other.lock();
+
+			other.ctr->add_ref_copy();
+			ctr_block<Tp>* curr_ctr = ctr;
+			ptr = other.ptr;
+			ctr = other.ctr;
+			
+			other.unlock();
+
+			if (curr_ctr) curr_ctr->release();
+			unlock();
 
 			return *this;
 		}
 
 		~shared_ptr()
 		{
-			if (!ctr)	return;
-
 #ifdef RELEASE_COUT_DEBUGING_TEST
 			std::cout << "[ shared_ptr Destruct ] : " << this << std::endl;
 			std::cout << "[ shared_ptr Destruct ]ptr : " << ptr << std::endl;
@@ -325,25 +344,15 @@ namespace LFSP {
 			std::cout << "[ shared_ptr Destruct ]Use_count : " << ctr->get_usecount() << std::endl;
 			std::cout << "[ shared_ptr Destruct ]Weak_count : " << ctr->get_weakcount() << std::endl;
 #endif // RELEASE_COUT_DEBUGING_TEST
-
-			ctr->lock();
-			if (!ctr->release())
-				ctr->unlock();
-		}
-
-		Tp* blocking_get() const
-		{
-			ctr->lock();
-			Tp* Ret;
-			Ret = ptr;
-			ctr->unlock();
-
-			return Ret;
+			//lock();
+			if (ctr) 
+				ctr->release();
+			//unlock();
 		}
 
 		Tp* get() const
 		{
-			return blocking_get();
+			return ptr;
 		}
 
 		Tp& operator*()
@@ -358,9 +367,14 @@ namespace LFSP {
 
 		operator bool()
 		{
-			if (ptr)	
-				return true;
+			lock();
 
+			if (ptr) {
+				unlock();
+				return true;
+			}
+
+			unlock();
 			return false;
 		}
 
@@ -369,7 +383,7 @@ namespace LFSP {
 			return ctr->get_use_count();
 		}
 
-		void reset()	
+		void reset()		// ***************
 		{
 			if (!ctr)	return;
 
@@ -408,33 +422,6 @@ namespace LFSP {
 			if(ctr)
 				ctr->unlock();
 		}
-
-	private:
-
-		template<typename Tp>
-		void _Set_ptr_rep(Tp* other_ptr, ctr_block<Tp>* other_ctr)
-		{
-			ptr = other_ptr;
-			ctr = other_ctr;
-		}
-
-		template<typename Tp>
-		void _Set_ptr_rep_and_enable_shared(Tp* other_ptr, ctr_block<Tp>* other_ctr)
-		{
-			this->_Set_ptr_rep(other_ptr, other_ctr);
-			_Enable_shared_from_this(*this, other_ptr);
-		}
-
-
-		template<typename Tp>
-		friend class weak_ptr;
-
-
-		template<typename Tp, typename... Args>
-		friend shared_ptr<Tp> make_shared(Args&&... _Args);
-
-		ctr_block<Tp>* ctr;
-		Tp* ptr;
 	};
 
 	template<typename Tp1, typename Tp2>
@@ -504,10 +491,14 @@ namespace LFSP {
 
 		// Create shared_ptr
 #ifdef RELEASE_COUT_DEBUGING_TEST
-		std::cout << "function : make_shared::Create shared_ptr \n";
+		std::cout << "function : make_shared::Create shared_ptr : ";
 #endif // RELEASE_COUT_DEBUGING_TEST
 		shared_ptr<Tp> _Ret;
 		_Ret._Set_ptr_rep_and_enable_shared(new_Tp, new_ctr);
+#ifdef RELEASE_COUT_DEBUGING_TEST
+		std::cout << &_Ret << std::endl;
+#endif // RELEASE_COUT_DEBUGING_TEST
+
 
 #ifdef RELEASE_COUT_DEBUGING_TEST
 		std::cout << "function : make_shared::(return)shared_ptr Use_count : " << _Ret.get_usecount() << std::endl;
@@ -545,9 +536,33 @@ namespace LFSP {
 	}
 
 	template<typename Tp>
-	class weak_ptr
-	{
+	class weak_ptr{
+
+	private:
+
+		Tp* ptr;
+		ctr_block<Tp>* ctr;
+		mutable std::mutex sp_lock;
+
+		template<typename Tp>
+		friend class shared_ptr;
+
+		template<typename Tp>
+		friend class enable_shared_from_this;
+
+		
+
 	public:
+
+		void lock() const
+		{
+			sp_lock.lock();
+		}
+
+		void unlock() const
+		{
+			sp_lock.unlock();
+		}
 
 		// ********************
 
@@ -586,17 +601,12 @@ namespace LFSP {
 			std::cout << "[ Create Weak_ptr from shared_ptr ] : " << this;
 #endif // RELEASE_COUT_DEBUGING_TEST
 
-			/*if (!other.ctr) {
-				weak_ptr();
-				return;
-			}*/
-
-			other.ctr->lock();
+			other.lock();
 			other.ctr->weak_add_ref();
 
 			ptr = other.ptr;
 			ctr = other.ctr;
-			other.ctr->unlock();
+			other.unlock();
 		}
 
 		weak_ptr(const weak_ptr<Tp>& other)
@@ -605,17 +615,12 @@ namespace LFSP {
 			std::cout << "[ Create Weak_ptr from weak_ptr ]\n";
 #endif // RELEASE_COUT_DEBUGING_TEST
 
-			/*if (!other.ctr) {
-				weak_ptr();
-				return;
-			}*/
-
-			other.ctr->lock();
+			other.lock();
 			other.ctr->weak_add_ref();
 
 			ptr = other.ptr;
 			ctr = other.ctr;
-			other.ctr->unlock();
+			other.unlock();
 		}
 
 		~weak_ptr()
@@ -628,96 +633,75 @@ namespace LFSP {
 			std::cout << "[ Weak_ptr Destruct ]Weak_count : " << ctr->get_weakcount() << std::endl;
 #endif // RELEASE_COUT_DEBUGING_TEST
 
-			ctr->lock();
-			if (!ctr->weak_release())
-				ctr->unlock();
+			lock();
+			if (ctr)	ctr->weak_release();
+			unlock();
+		}
+
+		weak_ptr& operator=(nullptr_t)
+		{
+			lock();
+
+			if (ctr) {
+				ctr->weak_release();
+				ctr = nullptr;
+				ptr = nullptr;
+			}
+
+			unlock();
+
+			return *this;
 		}
 
 		weak_ptr& operator=(const shared_ptr<Tp>& other)
 		{
-			std::lock_guard<std::mutex> tl{ sp_lock };
-
-			if (other.ptr == ptr)
-				return *this;
-
-			if (ctr)
-				ctr->lock();
-
-			if (other.ctr)
-				other.ctr->lock();
-
-			else {
-				if (ctr) {
-					ctr_block<Tp>* pred_ctr = ctr;
-
-					ctr = nullptr;
-					ptr = nullptr;
-
-					if (!pred_ctr->weak_release())
-						pred_ctr->unlock();
-				}
+			lock();
+			if (other.ptr == ptr) {
+				unlock();
 				return *this;
 			}
+
+			other.lock();
 
 			other.ctr->weak_add_ref();
 
 			ctr_block<Tp>* curr_ctr = ctr;
-
 			ptr = other.ptr;
 			ctr = other.ctr;
 
-			other.ctr->unlock();
+			other.unlock();
 
-			if (curr_ctr) {
-				if (!curr_ctr->weak_release())
-					curr_ctr->unlock();
-			}
+			if (curr_ctr) curr_ctr->weak_release();
+			unlock();
 
 			return *this;
 		}
 
 		weak_ptr& operator=(const weak_ptr& other)
 		{
-			if (other.ptr == ptr)
-				return *this;
-
-			if (ctr)
-				ctr->lock();
-
-			if (other.ctr)
-				other.ctr->lock();
-
-			else {
-				if (ctr) {
-					ctr_block<Tp>* pred_ctr = ctr;
-
-					ctr = nullptr;
-					ptr = nullptr;
-
-					if (!pred_ctr->weak_release())
-						pred_ctr->unlock();
-				}
+			lock();
+			if (other.ptr == ptr) {
+				unlock();
 				return *this;
 			}
+
+			other.lock();
 
 			other.ctr->weak_add_ref();
 
 			ctr_block<Tp>* curr_ctr = ctr;
-
 			ptr = other.ptr;
 			ctr = other.ctr;
 
-			other.ctr->unlock();
+			other.unlock();
 
-			if (curr_ctr) {
-				if (!curr_ctr->weak_release())
-					curr_ctr->unlock();
-			}
+			if (curr_ctr) curr_ctr->weak_release();
+			unlock();
 
 			return *this;
 		}
 
-		shared_ptr<Tp> lock() const
+		shared_ptr<Tp> bl_lock() const
 		{
 			if (ptr)
 				return shared_ptr<Tp>(*this);
@@ -726,7 +710,7 @@ namespace LFSP {
 				return nullptr;
 		}
 
-		void reset()
+		void reset()	// ***********************
 		{
 			if (!ctr)	return;
 
@@ -759,24 +743,18 @@ namespace LFSP {
 			other.ctr->unlock();
 			ctr->unlock();
 		}
-
-	private:
-
-		template<typename Tp>
-		friend class shared_ptr;
-
-		template<typename Tp>
-		friend class enable_shared_from_this;
-
-		ctr_block<Tp>* ctr;
-		Tp* ptr;
-		mutex sp_lock;
 	};
 
 
 	template<typename Tp>
-	class enable_shared_from_this
-	{
+	class enable_shared_from_this{
+
+	private:
+		weak_ptr<Tp> Wptr;
+
+		template<typename Tp>
+		friend void _Enable_shared_from_this1(const shared_ptr<Tp>& _This, Tp* _Ptr, std::true_type);
+
 	public:
 		using _Esft_type = enable_shared_from_this;
 
@@ -810,12 +788,7 @@ namespace LFSP {
 
 		~enable_shared_from_this() = default;
 
-	private:
-		template<typename Tp>
-		friend void _Enable_shared_from_this1(const shared_ptr<Tp>& _This, Tp* _Ptr, std::true_type);
-
-
-		weak_ptr<Tp> Wptr;
+	
 	};
 
 	// ****************************

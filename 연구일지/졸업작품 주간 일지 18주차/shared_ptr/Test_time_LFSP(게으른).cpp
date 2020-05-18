@@ -9,7 +9,7 @@
 using namespace LFSP;
 using namespace std::chrono;
 
-const auto NUM_TEST = 10000;
+const auto NUM_TEST = 100000;
 const auto KEY_RANGE = 1000;
 
 class SPNODE {
@@ -63,9 +63,9 @@ public:
 	}
 
 	void Init() {
-		
-		std::cout << "Clist.Init()" << std::endl;
+		//std::cout << "Clist.Init() ";
 		head->next = tail;
+		//std::cout << "Finish" << std::endl;
 
 		/*std::cout << "[ head ] : " << &head << std::endl;
 		std::cout << "[ head ] ptr : " << head.get_ptr() << std::endl;
@@ -98,7 +98,7 @@ public:
 				pred = curr;
 				//if (curr->next->key < 0)
 				//	DebugBreak();
-				curr = (curr->next);
+				curr = curr->next;
 			}
 			pred->lock();	curr->lock();
 
@@ -143,6 +143,7 @@ public:
 					pred->next = curr->next;
 
 					curr->unlock();	pred->unlock();
+					
 					return true;
 				}
 
@@ -157,9 +158,9 @@ public:
 
 	bool Contains(int key) {
 		shared_ptr<SPNODE> curr = head;
-		while (curr->key < key)
+		while (curr->key < key) {
 			curr = curr->next;
-
+		}
 		return curr->key == key && !curr->removed;
 	}
 
@@ -194,11 +195,13 @@ void thread_func(int num_thread, int num) {
 		case 0:
 			key = rand() % KEY_RANGE;
 			clist.Add(key);
+			//std::cout << "+" << key << " ";
 			break;
 
 		case 1:
 			key = rand() % KEY_RANGE;
 			clist.Remove(key);
+			//std::cout << "-" << key << " ";
 			break;
 
 		case 2:
@@ -211,10 +214,11 @@ void thread_func(int num_thread, int num) {
 			exit(-1);
 		}
 	}
+	//std::cout << "Thread [" << num << "] Finish" << std::endl;
 }
 
 int main() {
-
+	while(true)
 	for (int num_thread = 1; num_thread <= 8; num_thread *= 2) {
 		//if(num_thread > 1)
 		//	DebugBreak();

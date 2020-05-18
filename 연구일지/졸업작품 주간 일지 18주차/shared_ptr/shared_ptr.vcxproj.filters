@@ -18,6 +18,9 @@
     <ClCompile Include="Test_time_LFSP%28게으른%29.cpp">
       <Filter>소스 파일</Filter>
     </ClCompile>
+    <ClCompile Include="벤치마크.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="blocking_shared_ptr.h">
