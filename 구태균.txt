@@ -364,4 +364,22 @@ int main()
 
 
 
+2020-05-18
+------------
+1. 진행상황
+ - mutex를 shared_ptr 클래스에 설치 ->잘 실행됨.
+ - 성능? 멀티쓰레드일 때 std::shared_ptr를 atomic하게 사용한 것보다 성능이 좋음.
+ 
+ - operator= 구현에서 임시 포인터 curr를 사용했는데 성능 저하???  => Release모드로 컴파일하면 컴파일러가 알아서 최적화 하므로 문제 없음
+ - destructor()에서도 lock을 걸어야하는가? => reference counter를 감소 시킨 후 access하는 코드가 없어야 한다. 
+                   그럴 경우 필요없다. destructor()는 싱글 스레드에서만 호출 된다.
 
+2. Lock Free구현을 할 차례
+ - Lock Free 구현의 필요성 : https://www.justsoftwaresolutions.co.uk/threading/why-do-we-need-atomic_shared_ptr.html
+ - Lock Free Shared Pointer 구현 논문 : https://pdfs.semanticscholar.org/80d2/3837377503c3343e4117f5069fba816faac7.pdf
+
+3. 다음 미팅
+- 2번의 blog와 논문을 읽고 내용을 발표할 것.
+
+4. 과제 수행
+ - 다음주 월요일 까지 답십리 자료 입력해올것.
