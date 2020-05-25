@@ -383,3 +383,21 @@ int main()
 
 4. 과제 수행
  - 다음주 월요일 까지 답십리 자료 입력해올것.
+
+2020-05-25
+------------
+1. 진행상황
+ - https://pdfs.semanticscholar.org/80d2/3837377503c3343e4117f5069fba816faac7.pdf 가 shared_ptr에 대한 논문이 아니라,  링크로 연결된 노드들로 이루어진
+  자료구조에서 ref_counting으로 메모리 재상용문제를 해결하는 논문
+
+2. 읽어 볼것
+ - Lock Free 구현의 필요성 : https://www.justsoftwaresolutions.co.uk/threading/why-do-we-need-atomic_shared_ptr.html
+
+3. Shared_ptr을 lock free로 어떻게 구현할지 고민 해 볼것
+ - Lock Free로 구현하는 것이 어떠한 이유로 어려운지. 장애물들을 찾아서 적어 볼것
+
+4. 다음 미팅
+ 2를 일고 3번을 고민한 내용을 이야기 할 것
+
+5. 과제 수행
+ - 다음주 월요일 까지 답십리 자료 입력해 올것.
