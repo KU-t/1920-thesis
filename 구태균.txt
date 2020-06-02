@@ -401,3 +401,32 @@ int main()
 
 5. 과제 수행
  - 다음주 월요일 까지 답십리 자료 입력해 올것.
+
+2020-06-01
+-------------
+1. 진행상황
+ - PPT에 적어온 내용은  shared_ptr <atomic_int> 
+      shared_ptr<atomic_int> HP = make_shared<(int) 1>;
+     ++(*HP);               // atomic wait-free operation
+ - 원래 논문으로 구현하라고 했던 것
+   atomic_shared_ptr <T> AHP
+   atomic_ahred_ptr <T> TEMP_HP = AHP;   // 이 것이 atomic lock free로 실행되는 atomic_shared_ptr의 구현이 목표이다.
+ - 지금까지 mutex를 넣어서 멀티쓰레드에서 잘 돌아가는 atomic_shared_ptr를 만들었는데 이제 mutex를 빼고 lock-free로 다시 구현하면 된다.
+
+2. Shared_ptr을 lock free로 어떻게 구현할지 이번에는 제대로 고민 해 볼것
+ - Lock Free로 구현하는 것이 어떠한 이유로 어려운지. 장애물들을 찾아서 적어 볼것
+
+3. 과제 수행
+ - 한달에 40만원씩 3,4,5월이 입금 됨
+ - 이번에는 영등포 사업소 입력할 것.
+ - 답십리 사업소 출력물에 출근시간이 생략되어 있음
+ - 열차번호와 시간이 겹쳐서 인쇄되어서 알아보기 힘든 것들이 있음.
+ - .xlsx로 출력해야 노란색으로 표시된 것이 남아 있음.
+
+4. 벤치마크 프로그램 후보
+ - 멀티코어 수업시간에 했던 Lazy-List
+ - 게임서버를 작성해서 성능비교
+
+4. 다음 미팅
+ - 엉뚱한 것 하지말고, atomic_shared_ptr를 Lock Free로 어떻게 구현할지 고민해 오기
+
