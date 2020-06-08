@@ -430,3 +430,60 @@ int main()
 4. 다음 미팅
  - 엉뚱한 것 하지말고, atomic_shared_ptr를 Lock Free로 어떻게 구현할지 고민해 오기
 
+2020-06-08
+------------
+1. 진행상황
+   shared_ptr(const shared_ptr& other)
+   {
+	ctr* new_ctr;
+	while(true){
+		new_ctr = other.ctr;
+		if(new_ctr == nullptr) 	{ctr = nullptr; return;}
+		new_ctr->add_ref_copy();
+
+ - 위의 구현은 오류
+   other.ctr을 new_ctr에 복사한 후 other.ctr이 delete되면 new_ctr->add_ref_copy()가 delete된 ctr에서 실행된다.
+  
+ - Refcount증가와 Copy를 동시에 할 수 있는 방법이 필요하다! 아이디어?????
+
+2. 일주일을 더 고민해보자.
+
+     shared_ptr(const shared_ptr& other)
+     {
+      ctr *new_ctr = other.add_ref_copy();
+     }
+
+ctr*    shared_ptr::add_ref_copy()
+    { 
+      ctr *tmp_ptr;
+      do {
+          ctr *tmp2 = ctr;
+          if (nullptr == tmp2) return nullptr;
+          tmp_ptr = tmp2->add_ref_copy();
+      } while (nullptr == tmp_ptr);
+      return tmp_ptr;
+    }
+
+
+ctr*   ctr::add_ref_copy()
+   {
+     while (true) {
+        int temp = ref_count;
+        if (temp > 0) {
+            if (true == CAS(&ref_count, temp, temp + 1) return this;
+           else continue;
+        }
+        else return nullptr;
+        }
+   }
+
+  이 코드는 괜찮은가???
+
+3. 다음 주 미팅
+ - 좀더 고민해 올것.
+ - 6월 18일 목요일 오후 1시 30분으로 시간 이동
+
+4. 과제 : 7호선 대공원 사업소 입력.
+
+
+
