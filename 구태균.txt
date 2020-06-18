@@ -486,4 +486,38 @@ ctr*   ctr::add_ref_copy()
 4. 과제 : 7호선 대공원 사업소 입력.
 
 
+2020-06-18
+-------------
+1. shared_ptr에서 Get의 구현
+ - get은 private니까 구현하지 않아도 된다.
+
+2. atomic의 정의가 무엇인가?
+ - Operation의 시작에서 끝까지 다른 Operation에 영향을 받지 않는 것.
+
+3. Release
+ Void control_block::release()
+{
+	Int count;
+	While(true){
+		Count = ref_count;
+		If(true == CAS(&ref_count,count,count-1))
+		{
+			If(0 == count)
+				Destroy(…);
+			Return;
+		}
+}
+}
+
+
+void atomic_shared_ptr::release()
+{
+       auto t_ctr = ctr;
+       if (nullptr != t_ctr) 
+           t_ctr->release();
+}
+
+4. 코드를 만들어서 테스트 해 본다음에 물어 볼것.
+
+5. 다음 미팅 6월 25일 오후 1시 30분
 
