@@ -521,3 +521,31 @@ void atomic_shared_ptr::release()
 
 5. 다음 미팅 6월 25일 오후 1시 30분
 
+2020-06-25
+------------
+1. Atomic Shared Pointer 구현. 
+ - 벤치마크 수행
+  * atomic_load/store 보다는 성능이 좋음
+  * mutex로 구현된 atomic_shared_ptr보다는 성능이 좀 떨어짐
+ - 코어가 많은 컴퓨터에서 실행해 보자.  LINUX에서 컴파일이 안된다.
+  * LINUX에서도 컴파일이 되도록 수정할 것
+  * 리눅스 접속은 ssh ktk@210.93.61.41 
+  * putty에서 210.93.61.41에 포트번호 23번으로 접속
+  * Windows 10을 사용하면 WSL2를 사용하던가 hyper5 가상머신으로 설치해서 사용하던가.
+
+2. 지금까지 테스트한 것
+ - 생성자, 소멸자, operator =, operator ->, make_shared
+
+3. 테스트가 필요한 것
+ - enable_shared_from_this, weak_ptr, atomic_compare_exchange
+ - 위의 것들를 테스트 할 수 있는 벤치마크 프로그램 만들기(또는 찾아 보기)
+
+4. Correctenss에 대한 설명 작성하기 (증명까지 하면 좋음) 교과서 198페이지 참조
+ - 왜 Lock Free인가?
+ - 왜 오류가 없이 동작하는가??
+
+5. 다음 미팅
+ - LINUX동작 가능하게 수정
+ - 동작 증명 초안.
+
+
