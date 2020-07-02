@@ -548,4 +548,17 @@ void atomic_shared_ptr::release()
  - LINUX동작 가능하게 수정
  - 동작 증명 초안.
 
+2020-07-02
+-------------
+1. 진행 상황
+ - LINUX 수정 중 문제발생 => 계속 수정 할 것
+ - 중요 연산자의 동작 정리
+ 
+
+2. ToDo
+ - enable_shared_from_this, weak_ptr, atomic_compare_exchange
+   * 위의 것들를 테스트 할 수 있는 벤치마크 프로그램 만들기(또는 찾아 보기)
+ - LINUX 동작 가능하게 수정하기
+ - 동작을 정리한 것을 가지고 증명을 시도해 보기.
+
 
