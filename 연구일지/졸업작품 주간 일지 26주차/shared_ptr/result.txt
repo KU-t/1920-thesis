@@ -1,0 +1,22 @@
+number of test : 100 (average time)
+
+NUM_TEST = 300000
+KEY_RANGE = 10000
+
+std::shared_ptr (use atomic_load & _store)
+[thread 1]	 Exec_Time : 0ms
+[thread 2]	 Exec_Time : 0ms
+[thread 4]	 Exec_Time : 0ms
+[thread 8]	 Exec_Time : 0ms
+
+LSP::shared_ptr(lock)
+[thread 1]	 Exec_Time : 0ms
+[thread 2]	 Exec_Time : 0ms
+[thread 4]	 Exec_Time : 0ms
+[thread 8]	 Exec_Time : 0ms
+
+LFSP::shared_ptr(lock-free)
+[thread 1]	 Exec_Time : 0ms
+[thread 2]	 Exec_Time : 0ms
+[thread 4]	 Exec_Time : 0ms
+[thread 8]	 Exec_Time : 6363ms
