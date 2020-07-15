@@ -240,7 +240,6 @@ namespace LFSP {
 			_Enable_shared_from_this(*this, new_ptr);
 		}
 
-	private:
 		bool CAS(control_block<Tp>** memory, control_block<Tp>* oldaddr, control_block<Tp>* newaddr)
 		{
 			int old_addr = reinterpret_cast<int>(oldaddr);
@@ -411,6 +410,16 @@ namespace LFSP {
 		int use_count()
 		{
 			return ctr->get_use_count();
+		}
+
+		bool unique()
+		{
+			int pred_count = ctr->get_use_count();
+
+			if (pred_count == 1)
+				return true;
+			else
+				return false;
 		}
 
 		void reset()
