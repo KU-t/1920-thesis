@@ -5,7 +5,7 @@
 #include <vector>
 #include <atomic>
 
-#include "shared_ptr.h"
+#include "lockfree_shared_ptr.h"
 
 using namespace std::chrono;
 
