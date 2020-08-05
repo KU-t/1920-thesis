@@ -650,7 +650,15 @@ void atomic_shared_ptr::release()
 
 3. 논문 수정
  - 이미 교과서나 다른 논문에 실린 내용을 설명하면 안된다. 간단히 언급만 해주고 본인이 한 내용만 설명해야 한다.
+ - 이미 교과서나 다른 논문에 실린 내용의 설명이 필요하면 Reference로 해결한다.
 
-4. 다음 미팅
+4. Controlblock의 counter들이 다 0이 되면 ControlBlock을 delete하는데, 내가 참조하는 Controlblock이 delete되어 있다면 오동작이나 ABA문제가 생기지않는가?
+ - shared_ptr::add_weak_copy() 에서 curr_ctr의 생사를 보장할 수 없다.
+ - ctr이 가리키는 control block이 add_weak_copy()메소드의 호출기간 동안 delete되지 않도록 해야 한다.
+   => 해결방법 EBR이나 Hazard Pointer사용
+   => 참조 http://csng.cs.toronto.edu/publication_files/0000/0159/jpdc07.pdf
+ - 더 깔끔한 해결책이 없는지 고민해보기
+
+5. 다음 미팅
  - 8월 20일 목요일 1:30분
  - 논문 더 다듬어 오기
