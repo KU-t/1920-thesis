@@ -662,3 +662,139 @@ void atomic_shared_ptr::release()
 5. 다음 미팅
  - 8월 20일 목요일 1:30분
  - 논문 더 다듬어 오기
+
+
+2020-08-20
+-------------
+1. 진행상황
+ - ABA 문제 해결 필요
+
+ while(true)
+   a = make_shared<int>(i++);
+
+-----------------
+while(true)
+   b = a;
+
+ - 
+
+		control_block<Tp>* add_shared_copy() const
+		{
+			control_block<Tp>* curr_ctr;
+			control_block<Tp>* ret_ctr;
+
+			do {
+				curr_ctr = ctr;
+				if (curr_ctr == nullptr)
+					return nullptr;
+
+				ret_ctr = curr_ctr->add_use_count();            // ret_ctr이 가리키는 control_block이 이미 delete되어 있을 수 있다.
+
+			} while (ret_ctr == nullptr);
+
+			return ret_ctr;
+		}
+
+--------------------------------------
+control_block<Tp>* shared_ptr::add_shared_copy() const
+{
+    control_block<Tp>* curr_ctr;
+    control_block<Tp>* ret_ctr;
+    int ctc; 
+
+     while(true)
+    {	
+        curr_ctr = ctr;
+
+        if (curr_ctr == nullptr)	
+	return nullptr;
+
+        ctc = thread_count;	
+
+        if( ctc == 0 )		
+	 return nullptr;                   // 이러면 안된다.     이 객체가 nullptr가 된적이 없는데도 nullptr를 return할 수 있다.    continue를 해야지!!!
+			
+        if( true == CAS(thread_count, ctc, ctc + 1) )
+            break;	
+     }
+
+    ret_ctr = curr_ctr->add_use_count(); // 이러면 안된다.     이 객체가 nullptr가 된적이 없는데도 nullptr를 return할 수 있다.    continue를 해야지!!!
+
+    while(true)
+    {
+        ctc = thread_count;
+        if( false == CAS(thread_count, ctc, ctc - 1) )
+            continue;
+
+        if(ctc == 1 && ret_ctr = nullptr)
+        {
+            delete curr_ctr;
+	return nullptr;
+        }
+
+        else
+            return ret_ctr;
+    }
+}
+
+
+--------------------------------------------------------------------------------------------------------------
+control_block<Tp>* shared_ptr::add_shared_copy() const
+{
+    control_block<Tp>* curr_ctr;
+    control_block<Tp>* ret_ctr;
+    int ctc; 
+
+     while(true)
+    {	
+        curr_ctr = ctr;
+
+        if (curr_ctr == nullptr)	
+	return nullptr;
+
+        ctc = thread_count;	
+        if( ctc == 0 ) continue;
+        if( true == CAS(thread_count, ctc, ctc + 1) ) {
+            ret_ctr = curr_ctr->add_use_count();
+            if (nullptr == ret_ctr) {
+                 thread_count--;
+                 continue;
+            }
+            break;	
+       } 
+     }
+
+    while(true)
+    {
+        ctc = thread_count;
+        if( false == CAS(thread_count, ctc, ctc - 1) )
+            continue;
+
+        if(ctc == 1)
+        {
+            delete curr_ctr;
+	return nullptr;
+        }
+
+        else
+            return ret_ctr;
+    }
+}
+
+-----------------------------------------------
+ 수정해 볼것...
+
+
+2. 다음미팅 
+  8월 27일 목요일 1시 30분
+
+
+
+
+
+
+
+
+
+
+ 
