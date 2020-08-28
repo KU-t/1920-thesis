@@ -788,8 +788,18 @@ control_block<Tp>* shared_ptr::add_shared_copy() const
 2. 다음미팅 
   8월 27일 목요일 1시 30분
 
+2020-08-27
+------------
+1. Control Block을 링크드리스트로 관리한다. Circular List.
+ - delete되는 컨트롤 블록을 링크드리스트에 저장한다.
 
+2. Control Block에 stamp를 두고 재사용시 1씩 증가하게 해서 ABA문제를 없앤다.
+ - Control Block은 Free List로 관리하면 된다.
 
+3. 구현해 볼것.
+
+4. 다음 주 수요일 9월 2일 오후 2시 30분에 Skype로 보자.
+ - 졸업논문지원을 해줄 때 교수가 제출해야 지원 가능 (과사무실, 공저자? 제일저자?)
 
 
 
