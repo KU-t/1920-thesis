@@ -486,7 +486,6 @@ public:
 
 	void Init() {
 		head->next = tail;
-		LFSP::freelist.init();
 	}
 
 	bool validate(const LFSP::shared_ptr<SPNODE>& pred, const LFSP::shared_ptr<SPNODE>& curr) {
@@ -718,45 +717,45 @@ int main() {
 
 		std::cout << "\nstd::shared_ptr \t\t";
 
-		//for (int num_thread = 1; num_thread <= number_of_threads; num_thread++) {
-		//	stdlist.Init();
+		for (int num_thread = 1; num_thread <= number_of_threads; num_thread++) {
+			stdlist.Init();
 
-		//	std::vector<std::thread> threads;
+			std::vector<std::thread> threads;
 
-		//	auto start_time = high_resolution_clock::now();
+			auto start_time = high_resolution_clock::now();
 
-		//	for (int i = 0; i < return_thread_count(num_thread); ++i)
-		//		threads.emplace_back(std_thread_func, return_thread_count(num_thread));
+			for (int i = 0; i < return_thread_count(num_thread); ++i)
+				threads.emplace_back(std_thread_func, return_thread_count(num_thread));
 
-		//	for (auto &th : threads)	th.join();
+			for (auto &th : threads)	th.join();
 
-		//	auto end_time = high_resolution_clock::now();
-		//	auto exec_time = end_time - start_time;
-		//	long long exec_ms = duration_cast<milliseconds>(exec_time).count();
+			auto end_time = high_resolution_clock::now();
+			auto exec_time = end_time - start_time;
+			long long exec_ms = duration_cast<milliseconds>(exec_time).count();
 
-		//	std::cout << exec_ms << "ms\t\t";
-		//}
+			std::cout << exec_ms << "ms\t\t";
+		}
 
-		//std::cout << "\nLSP::shared_ptr(lock) \t\t";
+		std::cout << "\nLSP::shared_ptr(lock) \t\t";
 
-		//for (int num_thread = 1; num_thread <= number_of_threads; num_thread++) {
-		//	lsplist.Init();
+		for (int num_thread = 1; num_thread <= number_of_threads; num_thread++) {
+			lsplist.Init();
 
-		//	std::vector<std::thread> threads;
+			std::vector<std::thread> threads;
 
-		//	auto start_time = high_resolution_clock::now();
+			auto start_time = high_resolution_clock::now();
 
-		//	for (int i = 0; i < return_thread_count(num_thread); ++i)
-		//		threads.emplace_back(lsp_thread_func, return_thread_count(num_thread));
+			for (int i = 0; i < return_thread_count(num_thread); ++i)
+				threads.emplace_back(lsp_thread_func, return_thread_count(num_thread));
 
-		//	for (auto &th : threads)	th.join();
+			for (auto &th : threads)	th.join();
 
-		//	auto end_time = high_resolution_clock::now();
-		//	auto exec_time = end_time - start_time;
-		//	long long exec_ms = duration_cast<milliseconds>(exec_time).count();
+			auto end_time = high_resolution_clock::now();
+			auto exec_time = end_time - start_time;
+			long long exec_ms = duration_cast<milliseconds>(exec_time).count();
 
-		//	std::cout << exec_ms << "ms\t\t";
-		//}
+			std::cout << exec_ms << "ms\t\t";
+		}
 
 
 		std::cout << "\nHPLFSP::shared_ptr(lock-free) \t";
@@ -780,7 +779,7 @@ int main() {
 			std::cout << exec_ms << "ms\t\t";
 		}
 
-		/*std::cout << "\nLFSP::shared_ptr(lock-free) \t";
+		std::cout << "\nLFSP::shared_ptr(lock-free) \t";
 		for (int num_thread = 1; num_thread <= number_of_threads; num_thread++) {
 			splist.Init();
 
@@ -798,7 +797,7 @@ int main() {
 			long long exec_ms = duration_cast<milliseconds>(exec_time).count();
 
 			std::cout << exec_ms << "ms\t\t";
-		}*/
+		}
 	}
 
 	std::cout << "END" << std::endl;
