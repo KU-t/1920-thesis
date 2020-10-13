@@ -827,6 +827,34 @@ control_block<Tp>* shared_ptr::add_shared_copy() const
  - 영어로 써오기
 
 
+2020-10-13
+-------------
+1. 논문 투고 => 한국게임학회
+ => 전면 수정 후 재투고
+ => 문제는 게임학회에 어울리지 않는 논문이다.
+
+2. 해결방법
+ => 게임에 특화 -> shared_ptr가 게임에만 특화시킬 수 있는 것이 아니므로 곤란.
+ => 다른 논문지에 투고 => 정보과학회, 한국인터넷방송통신학회 논문지, 한국멀티미이어 학회
+    -> 문제 : 시간이 걸릴것 같다.
+
+3. 지적 받은 사항을 수정할 것.
+
+4. 관련 연구
+1. Arthur Andrzejak, Felix Eichler and Mohammadreza Ghanvati, "Detection of memory leaks in C/C++", 9th International Workshop on Software Aging and Rejuvenation (WoSAR 2017)co-located with ISSRE 2017, 26 Oct, 2017.
+
+FRC: a high-performance concurrent parallel deferred reference counter for C++ (ISMM2018)
+
+
+  - 검색해 볼것
+    https://ieeexplore.ieee.org/browse/conferences/topic?ranges=2016_2020_Year&pageNumber=10
+    https://dl.acm.org/doi/10.1145/3210563.3210569
+
+    비슷한 주제가 있을 것 같은 항목을 찾아서 제목들을 검색해 볼것.
+    => 리스트를 뽑고 한번 읽어 볼것.
+
+
+
 
 
 
