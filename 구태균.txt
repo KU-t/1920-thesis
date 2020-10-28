@@ -875,5 +875,12 @@ FRC: a high-performance concurrent parallel deferred reference counter for C++ (
 2. 다음 미팅
  - 10월 28일 오후 2시 30분
 
+2020-10-28
+-------------
+1. 다시 작성중
+ - 수정해서 Ver15에 올림
+
+2. 다음 미팅
+ - 11월 4일 오후 2시 30분
 
  
