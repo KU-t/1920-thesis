@@ -9,18 +9,18 @@
 
 using namespace std::chrono;
 
-const auto num_func = 120000;
-const auto key_range = 10000;
+const auto num_func = 1'000'000;
+const auto key_range = 1000;
 
 // Change the number of threads and the number of repeat
-const auto num_of_repeat = 5; 
+const auto num_of_repeat = 4; 
 
 // Number of threads per num_of_repea
 int return_thread_count(int in) { 
 	if (in == 1)	return 1;
 	if (in == 2)	return 2;
 	if (in == 3)	return 4;
-	if (in == 4)	return 6;
+	if (in == 4)	return 8;
 	if (in == 5)	return 12;
 	else			return 0;
 }
@@ -469,144 +469,7 @@ class LFZSL {
 
 public:
 	LFZSL() {
-		class ATSPNODE : public std::enable_shared_from_this<ATSPNODE> {
-		public:
-			int key;
-			std::shared_ptr<ATSPNODE> next; bool removed;
-			std::mutex nlock;
-
-			ATSPNODE() { next = nullptr; removed = false; }
-			ATSPNODE(int key_value) { next = nullptr; key = key_value; removed = false; }
-
-			~ATSPNODE() {}
-
-			void lock() {
-				nlock.lock();
-			}
-
-			void unlock() {
-				nlock.unlock();
-			}
-		};
-
-		class ATZSL {
-			std::shared_ptr<ATSPNODE> head, tail;
-
-		public:
-			ATZSL() {
-				head = std::make_shared<ATSPNODE>(0x80000000);
-				tail = std::make_shared<ATSPNODE>(0x7fffffff);
-				head->next = tail;
-			}
-
-			~ATZSL() {
-				head = nullptr;
-				tail = nullptr;
-			}
-
-			void Init() {
-				head->next = tail;
-			}
-
-			bool validate(const std::shared_ptr<ATSPNODE>& pred, const std::shared_ptr<ATSPNODE>& curr) {
-				return !pred->removed && !curr->removed && pred->next == curr;
-			}
-
-			bool Add(int key) {
-				while (true) {
-					std::shared_ptr<ATSPNODE> pred, curr;
-					std::shared_ptr<ATSPNODE> empty = atomic_load(&head);
-					atomic_store(&pred, empty);
-
-					empty = atomic_load(&pred->next);
-					atomic_store(&curr, empty);
-
-					while (curr->key < key) {
-						empty = atomic_load(&curr);
-						atomic_store(&pred, empty);
-
-						empty = atomic_load(&curr->next);
-						atomic_store(&curr, empty);
-					}
-					pred->lock();	curr->lock();
-
-					if (validate(pred, curr)) {
-						if (key == curr->key) {
-							curr->unlock();	pred->unlock();
-							return false;
-						}
-
-						else {
-							std::shared_ptr<ATSPNODE> add_node = std::make_shared<ATSPNODE>(key);
-
-							empty = atomic_load(&curr);
-							add_node->next = empty;
-
-							empty = atomic_load(&add_node);
-							atomic_store(&pred->next, empty);
-
-							curr->unlock();	pred->unlock();
-							return true;
-						}
-					}
-					curr->unlock();	pred->unlock();
-				}
-			}
-
-			bool Remove(int key) {
-
-				while (true) {
-					std::shared_ptr<ATSPNODE> pred, curr;
-
-					std::shared_ptr<ATSPNODE> empty = atomic_load(&head);
-					atomic_store(&pred, empty);
-
-					empty = atomic_load(&pred->next);
-					atomic_store(&curr, empty);
-
-					while (curr->key < key) {
-						empty = atomic_load(&curr);
-						atomic_store(&pred, empty);
-
-						empty = atomic_load(&curr->next);
-						atomic_store(&curr, empty);
-					}
-					pred->lock();	curr->lock();
-
-					if (validate(pred, curr)) {
-						if (key == curr->key) {
-							empty->removed = true;
-							atomic_store(&curr, empty);
-
-							empty = atomic_load(&curr->next);
-							atomic_store(&pred->next, empty);
-
-							curr->unlock();	pred->unlock();
-							return true;
-						}
-
-						else {
-							curr->unlock();	pred->unlock();
-							return false;
-						}
-					}
-					curr->unlock();	pred->unlock();
-				}
-			}
-
-			bool Contains(int key) {
-				std::shared_ptr<ATSPNODE> curr = atomic_load(&head);
-				std::shared_ptr<ATSPNODE> empty;
-
-				while (curr->key < key) {
-
-					empty = atomic_load(&curr->next);
-					atomic_store(&curr, empty);
-				}
-
-				return empty->key == key && !empty->removed;
-			}
-		};		head = LF::make_shared<LFSPNODE>(0x80000000);
+		head = LF::make_shared<LFSPNODE>(0x80000000);
 		tail = LF::make_shared<LFSPNODE>(0x7fffffff);
 		head->next = tail;
 
