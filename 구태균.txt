@@ -1021,3 +1021,28 @@ FRC: a high-performance concurrent parallel deferred reference counter for C++ (
 
 3. 다음 미팅
  - 2월 9일 화요일 오전 11시 30분 SKYPE
+
+2021-02-09
+-------------
+1. 논문 제출
+ - 게제 가능 -> 최종 논문 제출 -> 2월 말 게제
+  * 2월 중순 게재비 지불 -> 논문 프린트 본 전달 -> 지도교수 제출 -> 게제비 전달 (학교 논문장려금) -> 구태균 전달
+
+2. 취업 집중
+ - 포트폴리오
+  * 논문 내용 추가 => 논문 내용이 20페이지 너무 많다. => 압축 필요
+  * MO 스타일로 되어 있는 것을 MMO로 바꿀 것
+
+3. MMO관련
+ - Object에 Viewlist를 넣지 않기
+  * 몬스터가 이동했을 때 Sector의 모든 클라이언트의 viewlist lock해야 하는 오버헤드가 있지 않은가? -> 어차피 viewlist가 있어도 lock을 해야 한다.
+  * (제대로된 질문) 몬스터에게 viewlist가 없으면 oldviewlist를 만들기 위해서 sector scan을 추가로 해야 한다. viewlist가 있으면 oldviewlist를 위한 scan은 필요없지 않은가?
+    - 이경우 모든 몬스터가 viewlist를 가지게 되므로 추가 lock/unlock 오버헤드의 증가가 sector scan한번 추가 보다 크다.
+    - 한번 비교를 해볼 것
+ 
+4. 다음 미팅
+ - 2월 23일 화요일 오후 1시 30분 
+  * 논문 전달
+  * 과제 전달
+  * 포트폴리오 수정 (2월 까지 완료 해야 함)
+
