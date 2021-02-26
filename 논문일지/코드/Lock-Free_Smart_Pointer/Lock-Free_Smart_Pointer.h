@@ -26,7 +26,7 @@ namespace LF {
 	{};
 
 
-	class FreeList
+	class RecycleLinkedList
 	{
 	public:
 		class Node
@@ -83,12 +83,12 @@ namespace LF {
 
 	public:
 
-		FreeList()
+		RecycleLinkedList()
 		{
 			head = new Node(2);
 		}
 
-		~FreeList()
+		~RecycleLinkedList()
 		{
 			Node* curr = head->next;
 			Node* next;
@@ -163,7 +163,7 @@ namespace LF {
 		}
 	};
 
-	LF::FreeList freelist;
+	LF::RecycleLinkedList RLL;
 
 	template<typename Tp>
 	class control_block {
@@ -250,7 +250,7 @@ namespace LF {
 			if (curr_weak_count == 1)
 			{
 				if (true == CAS(&weak_count, curr_weak_count, curr_weak_count - 1))
-					LF::freelist.Add_FreeListNode(this);
+					LF::RLL.Add_FreeListNode(this);
 			}
 		}
 
@@ -323,7 +323,7 @@ namespace LF {
 				if (true == CAS(&weak_count, curr_weak_count, curr_weak_count - 1))
 				{
 					if (curr_weak_count == 1)
-						LF::freelist.Add_FreeListNode(this);
+						LF::RLL.Add_FreeListNode(this);
 					return;
 				}
 			}
@@ -682,7 +682,7 @@ namespace LF {
 	{
 		_Tp* new_Tp = new _Tp(std::forward<Args>(_Args)...);
 
-		void* get_control_block = LF::freelist.Alloc();
+		void* get_control_block = LF::RLL.Alloc();
 		control_block<_Tp>* new_ctr;
 
 		if (get_control_block != nullptr)

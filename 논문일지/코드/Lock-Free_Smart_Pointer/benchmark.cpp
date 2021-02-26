@@ -70,25 +70,19 @@ public:
 	}
 
 	bool Add(int key) {
+
 		while (true) {
-			NODE* pred;
-			NODE* curr;
-			NODE* empty = head;
-			pred = empty;
-
-			empty = pred->next;
-			curr = empty;
-
+			NODE* pred{ head };
+			NODE* curr{ pred->next };
+			
 			while (curr->key < key) {
-				empty = curr;
-				pred = empty;
-
-				empty = curr->next;
-				curr = empty;
+				pred = curr;
+				curr = curr->next;
 			}
 			pred->lock();	curr->lock();
 
 			if (validate(pred, curr)) {
+
 				if (key == curr->key) {
 					curr->unlock();	pred->unlock();
 					return false;
@@ -96,12 +90,8 @@ public:
 
 				else {
 					NODE* add_node = new NODE(key);
-
-					empty = curr;
-					add_node->next = empty;
-
-					empty = add_node;
-					pred->next = empty;
+					add_node->next = curr;
+					pred->next = add_node;
 
 					curr->unlock();	pred->unlock();
 					return true;
@@ -114,30 +104,20 @@ public:
 	bool Remove(int key) {
 
 		while (true) {
-			NODE* pred;
-			NODE* curr;
-			NODE* empty = head;
-			pred = empty;
-
-			empty = pred->next;
-			curr = empty;
+			NODE* pred{ head };
+			NODE* curr{ pred->next };
 
 			while (curr->key < key) {
-				empty = curr;
-				pred = empty;
-
-				empty = curr->next;
-				curr = empty;
+				pred = curr;
+				curr = curr->next;
 			}
 			pred->lock();	curr->lock();
 
 			if (validate(pred, curr)) {
-				if (key == curr->key) {
-					empty->removed = true;
-					curr = empty;
 
-					empty = curr->next;
-					pred->next = empty;
+				if (key == curr->key) {
+					curr->removed = true;
+					pred->next = curr->next;
 
 					curr->unlock();	pred->unlock();
 					return true;
@@ -154,15 +134,12 @@ public:
 
 	bool Contains(int key) {
 		NODE* curr = head;
-		NODE* empty = curr->next;
-
+	
 		while (curr->key < key) {
-
-			empty = curr->next;
-			curr = empty;
+			curr = curr->next;
 		}
 
-		return empty->key == key && !empty->removed;
+		return curr->key == key && !(curr->removed);
 	}
 };
 
@@ -210,24 +187,19 @@ public:
 	}
 
 	bool Add(int key) {
+
 		while (true) {
-			std::shared_ptr<SPNODE> pred, curr;
-			std::shared_ptr<SPNODE> empty = head;
-			pred = empty;
-
-			empty = pred->next;
-			curr = empty;
-
+			std::shared_ptr<SPNODE> pred{ head };
+			std::shared_ptr<SPNODE> curr{ pred->next };
+		
 			while (curr->key < key) {
-				empty = curr;
-				pred = empty;
-
-				empty = curr->next;
-				curr =  empty;
+				pred = curr;
+				curr = curr->next;
 			}
 			pred->lock();	curr->lock();
 
 			if (validate(pred, curr)) {
+
 				if (key == curr->key) {
 					curr->unlock();	pred->unlock();
 					return false;
@@ -235,12 +207,8 @@ public:
 
 				else {
 					std::shared_ptr<SPNODE> add_node = std::make_shared<SPNODE>(key);
-
-					empty = curr;
-					add_node->next = empty;
-
-					empty = add_node;
-					pred->next = empty;
+					add_node->next = curr;
+					pred->next = add_node;
 
 					curr->unlock();	pred->unlock();
 					return true;
@@ -253,30 +221,20 @@ public:
 	bool Remove(int key) {
 
 		while (true) {
-			std::shared_ptr<SPNODE> pred, curr;
-
-			std::shared_ptr<SPNODE> empty = head;
-			pred = empty;
-
-			empty = pred->next;
-			curr = empty;
+			std::shared_ptr<SPNODE> pred{ head };
+			std::shared_ptr<SPNODE> curr{ pred->next };
 
 			while (curr->key < key) {
-				empty = curr;
-				pred = empty;
-
-				empty = curr->next;
-				curr = empty;
+				pred = curr;
+				curr = curr->next;
 			}
 			pred->lock();	curr->lock();
 
 			if (validate(pred, curr)) {
-				if (key == curr->key) {
-					empty->removed = true;
-					curr = empty;
 
-					empty = curr->next;
-					pred->next = empty;
+				if (key == curr->key) {
+					curr->removed = true;
+					pred->next = curr->next;
 
 					curr->unlock();	pred->unlock();
 					return true;
@@ -293,15 +251,12 @@ public:
 
 	bool Contains(int key) {
 		std::shared_ptr<SPNODE> curr = head;
-		std::shared_ptr<SPNODE> empty;
-
+	
 		while (curr->key < key) {
-
-			empty = curr->next;
-			curr = empty;
+			curr = curr->next;
 		}
 
-		return empty->key == key && !empty->removed;
+		return curr->key == key && !(curr->removed);
 	}
 };
 
@@ -325,17 +280,17 @@ public:
 	}
 };
 
-class ATZSL {
+class ATSPZSL {
 	std::shared_ptr<ATSPNODE> head, tail;
 
 public:
-	ATZSL() {
+	ATSPZSL() {
 		head = std::make_shared<ATSPNODE>(0x80000000);
 		tail = std::make_shared<ATSPNODE>(0x7fffffff);
 		head->next = tail;
 	}
 
-	~ATZSL() {
+	~ATSPZSL() {
 		head = nullptr;
 		tail = nullptr;
 	}
@@ -349,24 +304,19 @@ public:
 	}
 
 	bool Add(int key) {
+
 		while (true) {
-			std::shared_ptr<ATSPNODE> pred, curr;
-			std::shared_ptr<ATSPNODE> empty = atomic_load(&head);
-			atomic_store(&pred, empty);
-
-			empty = atomic_load(&pred->next);
-			atomic_store(&curr, empty);
-
+			std::shared_ptr<ATSPNODE> pred{ atomic_load(&head) };
+			std::shared_ptr<ATSPNODE> curr{ atomic_load(&pred->next) };
+			
 			while (curr->key < key) {
-				empty = atomic_load(&curr);
-				atomic_store(&pred, empty);
-
-				empty = atomic_load(&curr->next);
-				atomic_store(&curr, empty);
+				pred = atomic_load(&curr);
+				curr = atomic_load(&curr->next);
 			}
 			pred->lock();	curr->lock();
 
 			if (validate(pred, curr)) {
+
 				if (key == curr->key) {
 					curr->unlock();	pred->unlock();
 					return false;
@@ -374,12 +324,8 @@ public:
 
 				else {
 					std::shared_ptr<ATSPNODE> add_node = std::make_shared<ATSPNODE>(key);
-
-					empty = atomic_load(&curr);
-					add_node->next = empty;
-
-					empty = atomic_load(&add_node);
-					atomic_store(&pred->next, empty);
+					add_node->next = atomic_load(&curr);
+					atomic_store(&pred->next, add_node);
 
 					curr->unlock();	pred->unlock();
 					return true;
@@ -392,30 +338,20 @@ public:
 	bool Remove(int key) {
 
 		while (true) {
-			std::shared_ptr<ATSPNODE> pred, curr;
-
-			std::shared_ptr<ATSPNODE> empty = atomic_load(&head);
-			atomic_store(&pred, empty);
-
-			empty = atomic_load(&pred->next);
-			atomic_store(&curr, empty);
+			std::shared_ptr<ATSPNODE> pred{ atomic_load(&head) };
+			std::shared_ptr<ATSPNODE> curr{ atomic_load(&pred->next) };
 
 			while (curr->key < key) {
-				empty = atomic_load(&curr);
-				atomic_store(&pred, empty);
-
-				empty = atomic_load(&curr->next);
-				atomic_store(&curr, empty);
+				pred = atomic_load(&curr);
+				curr = atomic_load(&curr->next);
 			}
 			pred->lock();	curr->lock();
 
 			if (validate(pred, curr)) {
-				if (key == curr->key) {
-					empty->removed = true;
-					atomic_store(&curr, empty);
 
-					empty = atomic_load(&curr->next);
-					atomic_store(&pred->next, empty);
+				if (key == curr->key) {
+					curr->removed = true;
+					atomic_store(&pred->next, atomic_load(&curr->next));
 
 					curr->unlock();	pred->unlock();
 					return true;
@@ -432,15 +368,12 @@ public:
 
 	bool Contains(int key) {
 		std::shared_ptr<ATSPNODE> curr = atomic_load(&head);
-		std::shared_ptr<ATSPNODE> empty;
-
+		
 		while (curr->key < key) {
-
-			empty = atomic_load(&curr->next);
-			atomic_store(&curr, empty);
+			curr = atomic_load(&curr->next);
 		}
 
-		return empty->key == key && !empty->removed;
+		return curr->key == key && !(curr->removed);
 	}
 };
 
@@ -491,10 +424,8 @@ public:
 	bool Add(int key) {
 
 		while (true) {
-
-			LF::shared_ptr<LFSPNODE> pred, curr;
-			pred = head;
-			curr = pred->next;
+			LF::shared_ptr<LFSPNODE> pred{ head }; 
+			LF::shared_ptr<LFSPNODE> curr{ pred->next };
 
 			while (curr->key < key) {
 				pred = curr;
@@ -503,15 +434,14 @@ public:
 			pred->lock();	curr->lock();
 
 			if (validate(pred, curr)) {
+
 				if (key == curr->key) {
 					curr->unlock();	pred->unlock();
-
 					return false;
 				}
 
 				else {
 					LF::shared_ptr<LFSPNODE> node = LF::make_shared<LFSPNODE>(key);
-
 					node->next = curr;
 					pred->next = node;
 
@@ -527,9 +457,8 @@ public:
 	bool Remove(int key) {
 
 		while (true) {
-			LF::shared_ptr<LFSPNODE> pred, curr;
-			pred = head;
-			curr = pred->next;
+			LF::shared_ptr<LFSPNODE> pred{ head };
+			LF::shared_ptr<LFSPNODE> curr{ pred->next };
 
 			while (curr->key < key) {
 				pred = curr;
@@ -538,12 +467,12 @@ public:
 			pred->lock();	curr->lock();
 
 			if (validate(pred, curr)) {
+
 				if (key == curr->key) {
 					curr->removed = true;
 					pred->next = curr->next;
 
 					curr->unlock();	pred->unlock();
-
 					return true;
 				}
 
@@ -558,16 +487,18 @@ public:
 
 	bool Contains(int key) {
 		LF::shared_ptr<LFSPNODE> curr = head;
+
 		while (curr->key < key) {
 			curr = curr->next;
 		}
+
 		return curr->key == key && !curr->removed;
 	}
 };
 
 ZSL   zsl;
 SPZSL spzsl;
-ATZSL atzsl;
+ATSPZSL atzsl;
 LFZSL lfzsl;
 
 void ZSL_thread_func(int num_of_thread) {
@@ -681,9 +612,7 @@ void LFZSL_thread_func(int num_of_thread) {
 int main() {
 
 	std::cout << "-------------------------------------------------------" << std::endl;
-	std::cout << "\tImplementation of Lock-Free Smart Pointer" << std::endl;
-	std::cout << "\t    for multi-threaded environments\n" << std::endl;
-	std::cout << "\t\t[benchmark program]\n" << std::endl;
+	std::cout << "\t\tBenchmark Program\n" << std::endl;
 	std::cout << "\tNUM_TEST = " << num_func << "\tKEY_RANGE = " << key_range << "\n";
 	std::cout << "\t    opms = operation/millisecond sec\n";
 	std::cout << "-------------------------------------------------------" << std::endl;
@@ -714,7 +643,7 @@ int main() {
 		std::cout << exec_ms << "ms\t\t" << "(opms : " << opms << " )";
 	}
 
-	std::cout << "\n\t\t< SPZSL >" << std::endl;
+	std::cout << "\n\n\t\t< SPZSL >" << std::endl;
 	for (int count_of_repeat = 1; count_of_repeat <= 1; count_of_repeat++) {
 
 		int num_of_thread = return_thread_count(count_of_repeat);
@@ -740,7 +669,7 @@ int main() {
 		std::cout << exec_ms << "ms\t\t" << "(opms : " << opms << " )";
 	}
 
-	std::cout << "\n\t\t< ATZSL >" << std::endl;
+	std::cout << "\n\n\t\t< ATSPZSL >" << std::endl;
 	for (int count_of_repeat = 1; count_of_repeat <= num_of_repeat; count_of_repeat++) {
 		
 		int num_of_thread = return_thread_count(count_of_repeat);
@@ -766,7 +695,7 @@ int main() {
 		std::cout << exec_ms << "ms\t\t" << "(opms : " << opms << " )";
 	}
 
-	std::cout << "\n\n\n\t\t< LFZSL >" << std::endl;
+	std::cout << "\n\n\t\t< LFZSL >" << std::endl;
 	for (int count_of_repeat = 1; count_of_repeat <= num_of_repeat; count_of_repeat++) {
 		
 		int num_of_thread = return_thread_count(count_of_repeat); 
@@ -794,6 +723,6 @@ int main() {
 
 	std::cout << "\n\n";
 
-	int a;
-	std::cin >> a;
+	int key_input;
+	std::cin >> key_input;
 }
