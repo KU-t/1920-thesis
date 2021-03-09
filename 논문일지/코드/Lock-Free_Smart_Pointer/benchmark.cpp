@@ -5,11 +5,13 @@
 #include <atomic>
 #include <vector>
 
+#define __LOCK_FREE_SMART_POINTER__
+
 #include "Lock-Free_Smart_Pointer.h" 
 
 using namespace std::chrono;
 
-const auto num_func = 1'000'000;
+const auto num_func = 1'0'000;
 const auto key_range = 1000;
 
 // Change the number of threads and the number of repeat
@@ -141,6 +143,20 @@ public:
 
 		return curr->key == key && !(curr->removed);
 	}
+
+	void display20() {
+		NODE *p = head->next;
+		int c = 20;
+		
+		while (p != tail) {
+			std::cout << p->key << ", ";
+			p = p->next;
+			c--;
+			if (c == 0)
+				break;
+		}
+		std::cout << std::endl;
+	}
 };
 
 class SPNODE : public std::enable_shared_from_this<SPNODE> {
@@ -258,6 +274,20 @@ public:
 
 		return curr->key == key && !(curr->removed);
 	}
+
+	void display20() {
+		std::shared_ptr<SPNODE>p = head->next;
+		int c = 20;
+
+		while (p.get() != tail.get()) {
+			std::cout << p->key << ", ";
+			p = p->next;
+			c--;
+			if (c == 0)
+				break;
+		}
+		std::cout << std::endl;
+	}
 };
 
 class ATSPNODE : public std::enable_shared_from_this<ATSPNODE> {
@@ -374,6 +404,20 @@ public:
 		}
 
 		return curr->key == key && !(curr->removed);
+	}
+
+	void display20() {
+		std::shared_ptr<ATSPNODE>p = head->next;
+		int c = 20;
+
+		while (p.get() != tail.get()) {
+			std::cout << p->key << ", ";
+			p = p->next;
+			c--;
+			if (c == 0)
+				break;
+		}
+		std::cout << std::endl;
 	}
 };
 
@@ -493,6 +537,20 @@ public:
 		}
 
 		return curr->key == key && !curr->removed;
+	}
+
+	void display20() {
+		LF::shared_ptr<LFSPNODE>p = head->next;
+		int c = 20;
+
+		while (p.get() != tail.get()) {
+			std::cout << p->key << ", ";
+			p = p->next;
+			c--;
+			if (c == 0)
+				break;
+		}
+		std::cout << std::endl;
 	}
 };
 
@@ -623,7 +681,7 @@ int main() {
 		int num_of_thread = return_thread_count(count_of_repeat);
 		std::cout << std::endl << "[thread " << num_of_thread << " ]\t";
 
-		atzsl.Init();
+		zsl.Init();
 
 		std::vector<std::thread> threads;
 
@@ -640,6 +698,7 @@ int main() {
 
 		float opms = (float)num_func / (float)exec_ms;
 
+		zsl.display20();
 		std::cout << exec_ms << "ms\t\t" << "(opms : " << opms << " )";
 	}
 
@@ -649,7 +708,7 @@ int main() {
 		int num_of_thread = return_thread_count(count_of_repeat);
 		std::cout << std::endl << "[thread " << num_of_thread << " ]\t";
 
-		atzsl.Init();
+		spzsl.Init();
 
 		std::vector<std::thread> threads;
 
@@ -666,6 +725,7 @@ int main() {
 
 		float opms = (float)num_func / (float)exec_ms;
 
+		spzsl.display20();
 		std::cout << exec_ms << "ms\t\t" << "(opms : " << opms << " )";
 	}
 
@@ -692,6 +752,7 @@ int main() {
 
 		float opms = (float)num_func / (float)exec_ms;
 
+		atzsl.display20();
 		std::cout << exec_ms << "ms\t\t" << "(opms : " << opms << " )";
 	}
 
@@ -718,6 +779,7 @@ int main() {
 
 		float opms = (float)num_func / (float)exec_ms;
 
+		lfzsl.display20();
 		std::cout << exec_ms << "ms\t\t" << "(opms : " << opms << " )";
 	}
 

@@ -4,6 +4,14 @@
 
 namespace LF {
 
+#ifdef _WIN64
+	using _p_size_ = long long;
+	using _p_type_ = std::atomic_llong;
+#else
+	using _p_size_ = long;
+	using _p_type_ = std::atomic_long;
+#endif
+
 	template<typename Tp>
 	class control_block;
 
@@ -32,8 +40,8 @@ namespace LF {
 		class Node
 		{
 		public:
-			Node* next;
-			volatile std::atomic_int active;
+			Node* volatile next;
+			std::atomic_int active;
 			void* ctr;
 
 		public:
@@ -63,22 +71,22 @@ namespace LF {
 	private:
 		Node* head;
 
-		bool CAS(volatile std::atomic_int* memory, int old_data, int new_data) const
+		bool CAS(std::atomic_int* memory, int old_data, int new_data) const
 		{
 			int old_value = old_data;
 			int new_value = new_data;
 
 			return std::atomic_compare_exchange_strong
-			(reinterpret_cast<volatile std::atomic_int*>(memory), &old_value, new_value);
+			(reinterpret_cast<std::atomic_int*>(memory), &old_value, new_value);
 		}
 
-		bool CAS(Node** memory, Node* oldaddr, Node* newaddr)
+		bool CAS(Node* volatile* memory, Node* oldaddr, Node* newaddr)
 		{
-			long old_addr = reinterpret_cast<long>(oldaddr);
-			long new_addr = reinterpret_cast<long>(newaddr);
+			_p_size_ old_addr = reinterpret_cast<_p_size_>(oldaddr);
+			_p_size_ new_addr = reinterpret_cast<_p_size_>(newaddr);
 
 			return std::atomic_compare_exchange_strong
-			(reinterpret_cast<std::atomic_long*>(memory), &old_addr, new_addr);
+			(reinterpret_cast<volatile _p_type_*>(memory), &old_addr, new_addr);
 		}
 
 	public:
@@ -163,7 +171,12 @@ namespace LF {
 		}
 	};
 
-	LF::RecycleLinkedList RLL;
+#ifdef __LOCK_FREE_SMART_POINTER__
+#define __EXT__
+#else
+#define __EXT__ extern
+#endif
+	__EXT__ LF::RecycleLinkedList RLL;
 
 	template<typename Tp>
 	class control_block {
@@ -333,9 +346,6 @@ namespace LF {
 	template <typename Tp>
 	class shared_ptr {
 
-	public:
-		using element_type = Tp;
-
 	private:
 
 		control_block<Tp>* ctr;
@@ -349,38 +359,29 @@ namespace LF {
 		template<typename _Tp>
 		friend bool operator==(const shared_ptr<_Tp>&, const shared_ptr<_Tp>&);
 
-		void make_enable_shared_min_weak_count()
+		void _Enable_shared_from_this(Tp* _Ptr, std::true_type)
 		{
-			ctr->enable_min_weak_count();
+			_Ptr->Wptr.Set_enable_shared(*this);
 		}
 
-		void _Enable_shared_from_this(const shared_ptr<Tp>& _This, Tp* _Ptr, std::true_type)
-		{
-			enable_shared_from_this<Tp>* enable_shared_from_this_base
-				= reinterpret_cast<enable_shared_from_this<Tp>*>(_Ptr);
-
-			enable_shared_from_this_base->Wptr = _This;
-			make_enable_shared_min_weak_count();
-		}
-
-		void _Enable_shared_from_this(const shared_ptr<Tp>&, Tp*, std::false_type)
+		void _Enable_shared_from_this(Tp*, std::false_type)
 		{}
 
 	public:
 		void _Set_ctr_and_enable_shared(Tp* new_ptr, control_block<Tp>* new_ctr)
 		{
 			ctr = new_ctr;
-			_Enable_shared_from_this(*this, new_ptr, std::bool_constant<std::conjunction_v<_Can_enable_shared<Tp>>>{});
+			_Enable_shared_from_this(new_ptr, std::bool_constant<std::conjunction_v<_Can_enable_shared<Tp>>>{});
 		}
 
 	private:
 		bool CAS(control_block<Tp>** memory, control_block<Tp>* oldaddr, control_block<Tp>* newaddr)
 		{
-			long old_addr = reinterpret_cast<long>(oldaddr);
-			long new_addr = reinterpret_cast<long>(newaddr);
+			_p_size_ old_addr = reinterpret_cast<_p_size_>(oldaddr);
+			_p_size_ new_addr = reinterpret_cast<_p_size_>(newaddr);
 
 			return std::atomic_compare_exchange_strong
-			(reinterpret_cast<std::atomic_long*>(memory), &old_addr, new_addr);
+			(reinterpret_cast<_p_type_*>(memory), &old_addr, new_addr);
 		}
 
 		control_block<Tp>* add_shared_copy() const
@@ -434,7 +435,7 @@ namespace LF {
 				}
 			}
 		}
-
+	public:
 		Tp* get() const
 		{
 			control_block<Tp>* curr_ctr = ctr;
@@ -767,13 +768,19 @@ namespace LF {
 
 		bool CAS(control_block<Tp>** memory, control_block<Tp>* oldaddr, control_block<Tp>* newaddr)
 		{
-			long old_addr = reinterpret_cast<long>(oldaddr);
-			long new_addr = reinterpret_cast<long>(newaddr);
+			_p_size_ old_addr = reinterpret_cast<_p_size_>(oldaddr);
+			_p_size_ new_addr = reinterpret_cast<_p_size_>(newaddr);
 
 			return std::atomic_compare_exchange_strong
-			(reinterpret_cast<std::atomic_long*>(memory), &old_addr, new_addr);
+			(reinterpret_cast<_p_type_*>(memory), &old_addr, new_addr);
 		}
 
+		void Set_enable_shared(const shared_ptr<Tp>& other)
+		{
+			ctr = other.ctr;
+		}
+
+	public:
 		Tp* get() const
 		{
 			control_block<Tp>* curr_ctr = ctr;
@@ -963,6 +970,7 @@ namespace LF {
 		weak_ptr<Tp> Wptr;
 
 		friend shared_ptr<Tp>;
+		friend control_block<Tp>;
 
 	public:
 		using _Esft_type = enable_shared_from_this;
