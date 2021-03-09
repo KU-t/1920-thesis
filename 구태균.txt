@@ -1064,4 +1064,17 @@ FRC: a high-performance concurrent parallel deferred reference counter for C++ (
  - 3월 9일 화요일 오전 11시 30분
  - 포트폴리오
 
+2021-03-09
+--------------
+1. 논문 종이본 제출 필요
+
+2. NDC제출 -> 심사중
+
+3. 포트폴리오
+ - 여러 군데 수정이 필요 포트폴리오 ver 15에 수정
+
+4. 다음 미팅
+ - 3월 23일 화요일 오후 1시 30분
+ - 논문 인쇄본 가지고 오기.
+
 
