@@ -143,6 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="c++memory.cpp" />
     <ClCompile Include="shared_ptr.h" />
     <ClCompile Include="shared_ptr_base.h" />
   </ItemGroup>

@@ -6,13 +6,17 @@
 #include <vector>
 
 #define __LOCK_FREE_SMART_POINTER__
-
 #include "Lock-Free_Smart_Pointer.h" 
+
+//#define __TEST_ZSL__
+//#define __TEST_SPZSL__
+//#define __TEST_ATSPZSL__
+#define __TEST_LFSPZSL__
 
 using namespace std::chrono;
 
-const auto num_func = 1'0'000;
-const auto key_range = 1000;
+const auto num_func = 100000;
+const auto key_range = 10000;
 
 // Change the number of threads and the number of repeat
 const auto num_of_repeat = 4; 
@@ -441,18 +445,18 @@ public:
 	}
 };
 
-class LFZSL {
+class LFSPZSL {
 	LF::shared_ptr<LFSPNODE> head, tail;
 
 public:
-	LFZSL() {
+	LFSPZSL() {
 		head = LF::make_shared<LFSPNODE>(0x80000000);
 		tail = LF::make_shared<LFSPNODE>(0x7fffffff);
 		head->next = tail;
 
 	}
 
-	~LFZSL() {
+	~LFSPZSL() {
 		head = nullptr;
 		tail = nullptr;
 	}
@@ -557,7 +561,7 @@ public:
 ZSL   zsl;
 SPZSL spzsl;
 ATSPZSL atzsl;
-LFZSL lfzsl;
+LFSPZSL lfzsl;
 
 void ZSL_thread_func(int num_of_thread) {
 	int key;
@@ -667,6 +671,7 @@ void LFZSL_thread_func(int num_of_thread) {
 	}
 }
 
+
 int main() {
 
 	std::cout << "-------------------------------------------------------" << std::endl;
@@ -675,6 +680,8 @@ int main() {
 	std::cout << "\t    opms = operation/millisecond sec\n";
 	std::cout << "-------------------------------------------------------" << std::endl;
 
+#ifdef __TEST_ZSL__
+	
 	std::cout << "\n\t\t< ZSL >" << std::endl;
 	for (int count_of_repeat = 1; count_of_repeat <= num_of_repeat; count_of_repeat++) {
 
@@ -701,6 +708,9 @@ int main() {
 		zsl.display20();
 		std::cout << exec_ms << "ms\t\t" << "(opms : " << opms << " )";
 	}
+#endif // __TEST_ZSL__
+
+#ifdef __TEST_SPZSL__
 
 	std::cout << "\n\n\t\t< SPZSL >" << std::endl;
 	for (int count_of_repeat = 1; count_of_repeat <= 1; count_of_repeat++) {
@@ -729,6 +739,10 @@ int main() {
 		std::cout << exec_ms << "ms\t\t" << "(opms : " << opms << " )";
 	}
 
+#endif // __TEST_SPZSL__
+
+#ifdef __TEST_ATSPZSL__
+
 	std::cout << "\n\n\t\t< ATSPZSL >" << std::endl;
 	for (int count_of_repeat = 1; count_of_repeat <= num_of_repeat; count_of_repeat++) {
 		
@@ -756,10 +770,14 @@ int main() {
 		std::cout << exec_ms << "ms\t\t" << "(opms : " << opms << " )";
 	}
 
-	std::cout << "\n\n\t\t< LFZSL >" << std::endl;
+#endif // __TEST_ATSPZSL__
+
+#ifdef __TEST_LFSPZSL__
+	
+	std::cout << "\n\n\t\t< LFSPZSL >" << std::endl;
 	for (int count_of_repeat = 1; count_of_repeat <= num_of_repeat; count_of_repeat++) {
-		
-		int num_of_thread = return_thread_count(count_of_repeat); 
+
+		int num_of_thread = return_thread_count(count_of_repeat);
 		std::cout << std::endl << "[thread " << num_of_thread << " ]\t";
 
 		lfzsl.Init();
@@ -782,6 +800,8 @@ int main() {
 		lfzsl.display20();
 		std::cout << exec_ms << "ms\t\t" << "(opms : " << opms << " )";
 	}
+
+#endif // __TEST_LFSPZSL__
 
 	std::cout << "\n\n";
 

@@ -714,7 +714,7 @@ int main() {
 		std::cout << "[" << num_thread << "]\t\t";
 
 	int test = 0;
-
+/*
 	std::cout << "\nstd::shared_ptr \t\t\t";
 
 	for (int num_thread = 1; num_thread <= number_of_threads; num_thread *= 2) {
@@ -783,7 +783,7 @@ int main() {
 		ave_LFSP[return_array(num_thread)] += exec_ms;
 
 		std::cout << exec_ms << "ms\t\t";
-	}
+	}*/
 
 	std::cout << "\nLFSP::shared_ptr(lock-free, Hp) \t";
 

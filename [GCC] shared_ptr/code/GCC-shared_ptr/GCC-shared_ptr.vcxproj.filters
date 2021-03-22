@@ -21,6 +21,9 @@
     <ClCompile Include="shared_ptr_base.h">
       <Filter>헤더 파일</Filter>
     </ClCompile>
+    <ClCompile Include="c++memory.cpp">
+      <Filter>헤더 파일</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="shared_ptr_atomic.h">
