@@ -1,0 +1,185 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="InGame">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="InGame\Server">
+      <UniqueIdentifier>{4ebe0321-6c4e-459a-8266-821b00f10992}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Main">
+      <UniqueIdentifier>{2ef44038-df7c-4b1f-914d-416c7b5befcf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Manager">
+      <UniqueIdentifier>{8e8ebe24-cd58-4a37-bc0d-e4bfe77a8c81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Manager\Object_Manager">
+      <UniqueIdentifier>{04e0f930-f796-4895-b391-4c9899c63309}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Manager\Object_Manager\Object">
+      <UniqueIdentifier>{00b08544-bcda-4288-809e-66309063084a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Manager\Object_Manager\Object\Monster">
+      <UniqueIdentifier>{90e57698-df9a-43bf-9e4b-b4b87b1be258}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Manager\Object_Manager\Object\Monster\Monster_Base">
+      <UniqueIdentifier>{a69b93bc-a513-49a8-8452-ca5d480bd4ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Manager\Sector_Manager">
+      <UniqueIdentifier>{32b9ccf9-90f3-440c-b26f-a0475f6ad1b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Manager\Login_Manager">
+      <UniqueIdentifier>{336048c9-efcd-4902-8105-89c049faa4bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Manager\Terrain_Manager">
+      <UniqueIdentifier>{7f6a0a6b-e352-42ee-b979-39a67ec68fe3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Manager\Timer_Manager">
+      <UniqueIdentifier>{466074dd-254c-45f3-9476-a9a22bfb74b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Manager\Timer_Manager\Event">
+      <UniqueIdentifier>{aa969814-4f9d-4a25-934c-c47367789360}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Manager\Send_Manager">
+      <UniqueIdentifier>{297d9328-54f8-4349-9836-df7e5745b1c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Manager\Object_Manager\Object\Player">
+      <UniqueIdentifier>{e683ca90-0a2c-48d4-866f-fb3717824763}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Manager\Object_Manager\Object\Player\Near_set">
+      <UniqueIdentifier>{3441cd3a-46b2-4912-97dd-32d2258308bb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Manager\Object_Manager\Object\Monster\Monster_type1">
+      <UniqueIdentifier>{24d609b8-1b5f-437f-88ea-85f26dfbe010}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Manager\Object_Manager\Object\Monster\Monster_type2">
+      <UniqueIdentifier>{89565e75-904f-4169-b438-642a0dd0ea51}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Manager\Object_Manager\Object\CoolTime">
+      <UniqueIdentifier>{5918bd47-0240-49ee-8cb7-5e8d115c8fd5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="InGame\Manager\Object_Manager\Object\Monster\Monster_type3">
+      <UniqueIdentifier>{27392244-e8de-4685-b429-b4775b2bd961}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Server.cpp">
+      <Filter>InGame\Server</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>InGame</Filter>
+    </ClCompile>
+    <ClCompile Include="Near_set.cpp">
+      <Filter>InGame\Manager\Object_Manager\Object\Player\Near_set</Filter>
+    </ClCompile>
+    <ClCompile Include="Monster_Base.cpp">
+      <Filter>InGame\Manager\Object_Manager\Object\Monster\Monster_Base</Filter>
+    </ClCompile>
+    <ClCompile Include="Monster_type1.cpp">
+      <Filter>InGame\Manager\Object_Manager\Object\Monster\Monster_type1</Filter>
+    </ClCompile>
+    <ClCompile Include="Login_Manager.cpp">
+      <Filter>InGame\Manager\Login_Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="Object_Manager.cpp">
+      <Filter>InGame\Manager\Object_Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="Sector_Manager.cpp">
+      <Filter>InGame\Manager\Sector_Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Main</Filter>
+    </ClCompile>
+    <ClCompile Include="Terrain_Manager.cpp">
+      <Filter>InGame\Manager\Terrain_Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="Timer_Manager.cpp">
+      <Filter>InGame\Manager\Timer_Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="Event.cpp">
+      <Filter>InGame\Manager\Timer_Manager\Event</Filter>
+    </ClCompile>
+    <ClCompile Include="Send_Manager.cpp">
+      <Filter>InGame\Manager\Send_Manager</Filter>
+    </ClCompile>
+    <ClCompile Include="CoolTime.cpp">
+      <Filter>InGame\Manager\Object_Manager\Object\CoolTime</Filter>
+    </ClCompile>
+    <ClCompile Include="Player.cpp">
+      <Filter>InGame\Manager\Object_Manager\Object\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="Object.cpp">
+      <Filter>InGame\Manager\Object_Manager\Object</Filter>
+    </ClCompile>
+    <ClCompile Include="Monster_type2.cpp">
+      <Filter>InGame\Manager\Object_Manager\Object\Monster\Monster_type2</Filter>
+    </ClCompile>
+    <ClCompile Include="Monster_type3.cpp">
+      <Filter>InGame\Manager\Object_Manager\Object\Monster\Monster_type3</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Server.h">
+      <Filter>InGame\Server</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\protocol.h">
+      <Filter>InGame</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>InGame</Filter>
+    </ClInclude>
+    <ClInclude Include="Near_set.h">
+      <Filter>InGame\Manager\Object_Manager\Object\Player\Near_set</Filter>
+    </ClInclude>
+    <ClInclude Include="Monster_Base.h">
+      <Filter>InGame\Manager\Object_Manager\Object\Monster\Monster_Base</Filter>
+    </ClInclude>
+    <ClInclude Include="Monster_type1.h">
+      <Filter>InGame\Manager\Object_Manager\Object\Monster\Monster_type1</Filter>
+    </ClInclude>
+    <ClInclude Include="Login_Manager.h">
+      <Filter>InGame\Manager\Login_Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Object_Manager.h">
+      <Filter>InGame\Manager\Object_Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Sector_Manager.h">
+      <Filter>InGame\Manager\Sector_Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Terrain_Manager.h">
+      <Filter>InGame\Manager\Terrain_Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer_Manager.h">
+      <Filter>InGame\Manager\Timer_Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="Event.h">
+      <Filter>InGame\Manager\Timer_Manager\Event</Filter>
+    </ClInclude>
+    <ClInclude Include="Send_Manager.h">
+      <Filter>InGame\Manager\Send_Manager</Filter>
+    </ClInclude>
+    <ClInclude Include="CoolTime.h">
+      <Filter>InGame\Manager\Object_Manager\Object\CoolTime</Filter>
+    </ClInclude>
+    <ClInclude Include="Player.h">
+      <Filter>InGame\Manager\Object_Manager\Object\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="Object.h">
+      <Filter>InGame\Manager\Object_Manager\Object</Filter>
+    </ClInclude>
+    <ClInclude Include="Monster_type2.h">
+      <Filter>InGame\Manager\Object_Manager\Object\Monster\Monster_type2</Filter>
+    </ClInclude>
+    <ClInclude Include="Monster_type3.h">
+      <Filter>InGame\Manager\Object_Manager\Object\Monster\Monster_type3</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+</Project>
