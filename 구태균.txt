@@ -1128,3 +1128,19 @@ FRC: a high-performance concurrent parallel deferred reference counter for C++ (
  - 5월 4일 11시 30분 SKYPE
  - 과제 수행 
  - 논문 게제비 (계정을 문자로 전송, 28만원)
+
+2021-05-11
+-------------
+1. 취업
+ - 웹젠, NCSoft, 크래프톤
+  * 서류 제출, 크래프톤은 금요일에 연락이 올 예정
+ - 펄어비스 지원 하자.
+2. 포트폴리오 제출
+ - 
+3. 면접 준비
+ - 포트폴리오에 대해서 질문이 오면 즉시 대답할 준비
+ - 손코딩 연습
+ - https://www.youtube.com/watch?v=4fUJsdF0QZQ  (NCSoft 박일 "프로그래머로서 취업 대비할 때 주의할 점"
+4. 다음 미팅
+ - 5월 25일 오전 11시 30분 SKYPE
+ 
